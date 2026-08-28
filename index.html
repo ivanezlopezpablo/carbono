@@ -289,6 +289,26 @@
   }
   .upload-drop:hover{ border-color:var(--teal); color:var(--text); }
 
+  /* Motion graphics: transición entre vistas */
+  .view-pane{ animation: viewEnter .45s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes viewEnter{
+    from{ opacity:0; transform:translateY(10px) scale(.995); filter:blur(2px); }
+    to{ opacity:1; transform:translateY(0) scale(1); filter:blur(0); }
+  }
+
+  /* Micro-interacción en filas de tabla */
+  tbody tr{ transition: background .15s ease; }
+  tbody tr:hover{ background:rgba(79,168,143,0.06); }
+
+  /* Barra de progreso animada (cobertura de datos) */
+  .progress-track{ height:5px; border-radius:4px; background:var(--surface-2); overflow:hidden; margin-top:8px; }
+  .progress-fill{ height:100%; border-radius:4px; background:linear-gradient(90deg,#2E6B5B,#4FA88F); width:0%; transition:width 1.3s cubic-bezier(.2,.8,.2,1); }
+
+  /* Búsqueda/filtro */
+  .search-bar{ display:flex; gap:10px; margin-bottom:14px; }
+  .search-bar input{ flex:1; background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:9px 12px; color:var(--text); font-size:12.5px; }
+  .search-bar input:focus{ outline:none; border-color:var(--teal); }
+
   @media (max-width: 880px){
     .sidebar{ display:none; }
     .kpi-row{ grid-template-columns:1fr 1fr; }
@@ -405,6 +425,7 @@
           <div class="kpi-label">Cobertura de datos primarios</div>
           <div class="kpi-value"><span id="kpiCov">0</span>%</div>
           <div class="kpi-delta down" style="color:var(--muted)">meta: 90%</div>
+          <div class="progress-track"><div class="progress-fill" id="covBar"></div></div>
         </div>
       </div>
 
@@ -557,6 +578,10 @@
       <div class="panel table-panel" style="margin-top:16px; opacity:1; animation:none;">
         <h3>Empresas registradas</h3>
         <div class="sub">Vista consolidada — todas las cuentas de la plataforma</div>
+        <div class="report-card" style="margin-top:2px; margin-bottom:16px;">
+          <div><div class="rtitle">Informe de empresas registradas</div><div class="rsub">Listado completo con sector, provincia, emisiones y estado — con fondo institucional</div></div>
+          <div class="report-actions"><div class="btn-sm pdf" onclick="downloadCompaniesPDF()">↓ PDF</div></div>
+        </div>
         <table>
           <thead><tr><th>Empresa</th><th>Sector</th><th>Provincia</th><th>Emisiones</th><th>Estado</th></tr></thead>
           <tbody id="companiesTableBody"></tbody>
@@ -573,9 +598,10 @@
       <div class="panel table-panel" style="opacity:1; animation:none;">
         <h3>Últimos registros</h3>
         <div class="sub">Alcance, categoría, cantidad y calidad del dato</div>
+        <div class="search-bar"><input type="text" id="dataSearch" placeholder="Buscar por instalación o categoría…" oninput="filterDataTable()"></div>
         <table>
           <thead><tr><th>Instalación</th><th>Alcance</th><th>Categoría</th><th>Cantidad</th><th>Período</th><th>Calidad</th></tr></thead>
-          <tbody>
+          <tbody id="dataTableBody">
             <tr><td>Locación Loma Campana</td><td>Alcance 1</td><td>Venteo de gas</td><td>1.240 m³</td><td>Ago 2026</td><td><span class="badge estimated">Estimado</span></td></tr>
             <tr><td>Base Añelo</td><td>Alcance 1</td><td>Diesel flota</td><td>3.800 L</td><td>Ago 2026</td><td><span class="badge invoice">Con factura</span></td></tr>
             <tr><td>Oficinas Neuquén Capital</td><td>Alcance 2</td><td>Electricidad</td><td>12.400 kWh</td><td>Ago 2026</td><td><span class="badge metered">Medido</span></td></tr>
@@ -836,6 +862,11 @@ function tryLogin(){
   }
 }
 
+function fillCoverageBar(){
+  const bar = document.getElementById('covBar');
+  if(bar) bar.style.width = '74%';
+}
+
 function animateCounter(id, target, suffix){
   const el = document.getElementById(id);
   let cur = 0;
@@ -853,6 +884,7 @@ function initDashboard(){
   animateCounter('kpiS1', 3110);
   animateCounter('kpiS2', 1240);
   animateCounter('kpiCov', 74);
+  fillCoverageBar();
 
   if(charted) return;
   charted = true;
@@ -901,11 +933,18 @@ function showView(name, el){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   el.classList.add('active');
   ['general','map','admin','data','evidence','audit','reports','config'].forEach(v=>{
-    document.getElementById('view-'+v).style.display = (v===name) ? 'block' : 'none';
+    const node = document.getElementById('view-'+v);
+    node.style.display = (v===name) ? 'block' : 'none';
+    if(v===name){
+      node.classList.remove('view-pane');
+      void node.offsetWidth;          // fuerza el reinicio de la animación
+      node.classList.add('view-pane');
+    }
   });
   if(name === 'map'){ setTimeout(initMap, 30); }
   if(name === 'admin'){ setTimeout(initAdminMap, 30); }
   if(name === 'config'){ updateProvinces(); }
+  if(name === 'general'){ setTimeout(fillCoverageBar, 200); }
 }
 
 const provincesByCountry = {
@@ -989,6 +1028,48 @@ function downloadInventoryXLSX(){
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Inventario');
   XLSX.writeFile(wb, 'inventario_detallado_huella_neuquen.xlsx');
+}
+
+function filterDataTable(){
+  const q = document.getElementById('dataSearch').value.toLowerCase();
+  document.querySelectorAll('#dataTableBody tr').forEach(tr=>{
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+function downloadCompaniesPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'pt', format:'a4' });
+  doc.setFillColor(18,24,26); doc.rect(0,0,595,842,'F');
+  doc.setFillColor(30,60,52); doc.circle(500,80,150,'F');
+  doc.setFillColor(30,45,65); doc.circle(50,780,120,'F');
+  doc.setTextColor(237,239,239); doc.setFont('helvetica','bold'); doc.setFontSize(20);
+  doc.text('Informe de empresas registradas', 45, 70);
+  doc.setFontSize(10.5); doc.setTextColor(160,175,178); doc.setFont('helvetica','normal');
+  doc.text('Huella Neuquén · Vista consolidada — todas las cuentas de la plataforma', 45, 90);
+
+  doc.setDrawColor(60,70,72); doc.line(45,108,550,108);
+  doc.setFontSize(9); doc.setTextColor(139,151,156);
+  doc.text('EMPRESA', 45, 128); doc.text('SECTOR', 240, 128); doc.text('PROVINCIA', 340, 128);
+  doc.text('tCO2e', 450, 128); doc.text('ESTADO', 505, 128);
+
+  let y = 148;
+  companies.forEach(c=>{
+    doc.setFontSize(9); doc.setTextColor(220,224,224);
+    doc.text(c.name.length > 30 ? c.name.slice(0,28)+'…' : c.name, 45, y);
+    doc.setTextColor(160,175,178);
+    doc.text(sectorLabel[c.sector], 240, y);
+    doc.text(c.prov, 340, y);
+    doc.setTextColor(232,163,61);
+    doc.text(c.tco2e.toLocaleString('es-AR'), 450, y);
+    doc.setTextColor(c.status==='Activo' ? [79,168,143] : (c.status==='Suspendido' ? [217,113,78] : [140,160,255]));
+    doc.text(c.status, 505, y);
+    y += 22;
+  });
+
+  doc.setFontSize(8.5); doc.setTextColor(139,151,156);
+  doc.text(`Total: ${companies.length} empresas — documento de demostración`, 45, 800);
+  doc.save('informe_empresas_registradas.pdf');
 }
 
 /* ---------- Vista Administrador General (todas las empresas del país) ---------- */
