@@ -892,66 +892,94 @@ function initDashboard(){
   animateCounter('kpiCov', 74);
   fillCoverageBar();
 
-  // se retrasa la creación de los gráficos hasta que el contenedor ya esté visible y tenga tamaño real
-  setTimeout(loadCharts, 80);
+  // dos frames de animación garantizan que el navegador ya calculó el layout real antes de dibujar
+  requestAnimationFrame(()=> requestAnimationFrame(loadCharts));
+}
+
+function showChartError(canvasId, msg){
+  const canvas = document.getElementById(canvasId);
+  if(!canvas) return;
+  const wrap = canvas.closest('.chart-wrap');
+  if(wrap){
+    wrap.innerHTML = `<div style="display:flex; align-items:center; justify-content:center; height:100%; font-size:11.5px; color:var(--amber); text-align:center; padding:10px;">${msg}</div>`;
+  }
 }
 
 function loadCharts(){
   if(charted) return;
+  if(typeof Chart === 'undefined'){
+    // la librería no llegó a cargar (red/CDN bloqueado) — avisamos en vez de dejar el panel vacío
+    showChartError('lineChart', '⚠ No se pudo cargar la librería de gráficos (Chart.js) desde el CDN. Revisá la conexión o si algún bloqueador de anuncios está filtrando cdnjs.cloudflare.com.');
+    showChartError('donutChart', '⚠ Gráfico no disponible');
+    showChartError('facilityChart', '⚠ Gráfico no disponible');
+    return;
+  }
   charted = true;
 
   const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago'];
-  new Chart(document.getElementById('lineChart'), {
-    type:'line',
-    data:{
-      labels:months,
-      datasets:[
-        { label:'Alcance 1', data:[320,340,360,410,430,470,510,530], borderColor:'#4FA88F', backgroundColor:'rgba(79,168,143,0.12)', tension:.35, fill:true, borderWidth:2, pointRadius:0 },
-        { label:'Alcance 2', data:[180,175,160,150,145,140,132,128], borderColor:'#8CA0FF', backgroundColor:'rgba(140,160,255,0.08)', tension:.35, fill:true, borderWidth:2, pointRadius:0 },
-        { label:'Alcance 3', data:[60,64,70,68,74,80,86,90], borderColor:'#E8A33D', backgroundColor:'rgba(232,163,61,0.08)', tension:.35, fill:true, borderWidth:2, pointRadius:0 },
-      ]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      animation:{ duration:1400, easing:'easeOutQuart' },
-      plugins:{ legend:{ display:false } },
-      scales:{
-        x:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ color:'#8B979C', font:{ family:'JetBrains Mono', size:10.5 } } },
-        y:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ color:'#8B979C', font:{ family:'JetBrains Mono', size:10.5 } } }
+  try{
+    const lc = document.getElementById('lineChart');
+    lc.width = lc.parentElement.clientWidth; lc.height = lc.parentElement.clientHeight;
+    new Chart(lc, {
+      type:'line',
+      data:{
+        labels:months,
+        datasets:[
+          { label:'Alcance 1', data:[320,340,360,410,430,470,510,530], borderColor:'#4FA88F', backgroundColor:'rgba(79,168,143,0.12)', tension:.35, fill:true, borderWidth:2, pointRadius:0 },
+          { label:'Alcance 2', data:[180,175,160,150,145,140,132,128], borderColor:'#8CA0FF', backgroundColor:'rgba(140,160,255,0.08)', tension:.35, fill:true, borderWidth:2, pointRadius:0 },
+          { label:'Alcance 3', data:[60,64,70,68,74,80,86,90], borderColor:'#E8A33D', backgroundColor:'rgba(232,163,61,0.08)', tension:.35, fill:true, borderWidth:2, pointRadius:0 },
+        ]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        animation:{ duration:1400, easing:'easeOutQuart' },
+        plugins:{ legend:{ display:false } },
+        scales:{
+          x:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ color:'#8B979C', font:{ family:'JetBrains Mono', size:10.5 } } },
+          y:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ color:'#8B979C', font:{ family:'JetBrains Mono', size:10.5 } } }
+        }
       }
-    }
-  });
+    });
+  }catch(e){ console.error('Error en gráfico de línea:', e); showChartError('lineChart', '⚠ Error al dibujar este gráfico: '+e.message); }
 
-  new Chart(document.getElementById('donutChart'), {
-    type:'doughnut',
-    data:{
-      labels:['Fugitivas/venteo','Combustión móvil','Electricidad','Viajes/otros'],
-      datasets:[{ data:[42,26,21,11], backgroundColor:['#4FA88F','#E8A33D','#8CA0FF','#5A6568'], borderWidth:0 }]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      animation:{ animateRotate:true, duration:1200 },
-      cutout:'68%',
-      plugins:{ legend:{ display:false } }
-    }
-  });
-
-  new Chart(document.getElementById('facilityChart'), {
-    type:'bar',
-    data:{
-      labels:['Loma Campana','Base Añelo','Ofic. Neuquén','Rincón Sauces'],
-      datasets:[{ data:[2140,980,210,1490], backgroundColor:['#4FA88F','#4FA88F','#8CA0FF','#E8A33D'], borderRadius:5, maxBarThickness:38 }]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      animation:{ duration:1200, easing:'easeOutQuart' },
-      plugins:{ legend:{ display:false } },
-      scales:{
-        x:{ grid:{ display:false }, ticks:{ color:'#8B979C', font:{ size:10.5 } } },
-        y:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ color:'#8B979C', font:{ family:'JetBrains Mono', size:10.5 } } }
+  try{
+    const dc = document.getElementById('donutChart');
+    dc.width = dc.parentElement.clientWidth; dc.height = dc.parentElement.clientHeight;
+    new Chart(dc, {
+      type:'doughnut',
+      data:{
+        labels:['Fugitivas/venteo','Combustión móvil','Electricidad','Viajes/otros'],
+        datasets:[{ data:[42,26,21,11], backgroundColor:['#4FA88F','#E8A33D','#8CA0FF','#5A6568'], borderWidth:0 }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        animation:{ animateRotate:true, duration:1200 },
+        cutout:'68%',
+        plugins:{ legend:{ display:false } }
       }
-    }
-  });
+    });
+  }catch(e){ console.error('Error en gráfico donut:', e); showChartError('donutChart', '⚠ Error al dibujar este gráfico: '+e.message); }
+
+  try{
+    const fc = document.getElementById('facilityChart');
+    fc.width = fc.parentElement.clientWidth; fc.height = fc.parentElement.clientHeight;
+    new Chart(fc, {
+      type:'bar',
+      data:{
+        labels:['Loma Campana','Base Añelo','Ofic. Neuquén','Rincón Sauces'],
+        datasets:[{ data:[2140,980,210,1490], backgroundColor:['#4FA88F','#4FA88F','#8CA0FF','#E8A33D'], borderRadius:5, maxBarThickness:38 }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        animation:{ duration:1200, easing:'easeOutQuart' },
+        plugins:{ legend:{ display:false } },
+        scales:{
+          x:{ grid:{ display:false }, ticks:{ color:'#8B979C', font:{ size:10.5 } } },
+          y:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ color:'#8B979C', font:{ family:'JetBrains Mono', size:10.5 } } }
+        }
+      }
+    });
+  }catch(e){ console.error('Error en gráfico de instalaciones:', e); showChartError('facilityChart', '⚠ Error al dibujar este gráfico: '+e.message); }
 }
 
 document.getElementById('pass').addEventListener('keydown', e=>{ if(e.key==='Enter') tryLogin(); });
