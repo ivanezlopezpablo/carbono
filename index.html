@@ -448,6 +448,12 @@
         </div>
       </div>
 
+      <div class="panel" style="animation-delay:.4s; margin-bottom:16px;">
+        <h3>Emisiones por instalación</h3>
+        <div class="sub">tCO2e acumuladas del período — mismas instalaciones del mapa de calor</div>
+        <div class="chart-wrap" style="height:190px;"><canvas id="facilityChart"></canvas></div>
+      </div>
+
       <div class="grid-2">
         <div class="panel table-panel" style="animation-delay:.42s">
           <h3>Últimos datos cargados</h3>
@@ -886,6 +892,11 @@ function initDashboard(){
   animateCounter('kpiCov', 74);
   fillCoverageBar();
 
+  // se retrasa la creación de los gráficos hasta que el contenedor ya esté visible y tenga tamaño real
+  setTimeout(loadCharts, 80);
+}
+
+function loadCharts(){
   if(charted) return;
   charted = true;
 
@@ -924,6 +935,23 @@ function initDashboard(){
       plugins:{ legend:{ display:false } }
     }
   });
+
+  new Chart(document.getElementById('facilityChart'), {
+    type:'bar',
+    data:{
+      labels:['Loma Campana','Base Añelo','Ofic. Neuquén','Rincón Sauces'],
+      datasets:[{ data:[2140,980,210,1490], backgroundColor:['#4FA88F','#4FA88F','#8CA0FF','#E8A33D'], borderRadius:5, maxBarThickness:38 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      animation:{ duration:1200, easing:'easeOutQuart' },
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ grid:{ display:false }, ticks:{ color:'#8B979C', font:{ size:10.5 } } },
+        y:{ grid:{ color:'rgba(255,255,255,0.05)' }, ticks:{ color:'#8B979C', font:{ family:'JetBrains Mono', size:10.5 } } }
+      }
+    }
+  });
 }
 
 document.getElementById('pass').addEventListener('keydown', e=>{ if(e.key==='Enter') tryLogin(); });
@@ -944,7 +972,7 @@ function showView(name, el){
   if(name === 'map'){ setTimeout(initMap, 30); }
   if(name === 'admin'){ setTimeout(initAdminMap, 30); }
   if(name === 'config'){ updateProvinces(); }
-  if(name === 'general'){ setTimeout(fillCoverageBar, 200); }
+  if(name === 'general'){ setTimeout(()=>{ fillCoverageBar(); if(window.Chart){ Object.values(Chart.instances||{}).forEach(c=>c.resize()); } }, 120); }
 }
 
 const provincesByCountry = {
