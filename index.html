@@ -78,6 +78,20 @@
     100%{ transform:translateY(-105vh) translateX(-10px) rotate(300deg); opacity:0; }
   }
 
+  .o2bubble{
+    position:absolute; bottom:-30px; opacity:0; border-radius:50%;
+    border:1px solid rgba(150,240,195,0.55);
+    background:radial-gradient(circle at 35% 30%, rgba(150,240,195,0.35), rgba(46,214,157,0.06));
+    box-shadow:0 0 8px rgba(46,214,157,0.35);
+    animation-name: bubbleRise; animation-timing-function: ease-in; animation-iteration-count: infinite;
+  }
+  @keyframes bubbleRise{
+    0%{ transform:translateY(0) translateX(0); opacity:0; }
+    8%{ opacity:.7; }
+    55%{ transform:translateY(-58vh) translateX(-14px); opacity:.5; }
+    100%{ transform:translateY(-110vh) translateX(10px); opacity:0; }
+  }
+
   /* ---------- LOGIN ---------- */
   #login-screen{
     min-height:100vh;
@@ -149,6 +163,42 @@
     border:1px dashed var(--line); border-radius:8px; font-size:12px; color:var(--muted);
   }
   .demo-box b{color:var(--text); font-family:'JetBrains Mono'; font-weight:500;}
+
+  .demo-list{ margin-top:18px; padding:12px 14px; background:var(--surface-2); border:1px dashed var(--line); border-radius:8px; }
+  .demo-list-title{ font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px; }
+  .demo-item{ display:flex; align-items:center; gap:8px; padding:6px 4px; border-radius:6px; cursor:pointer; transition:background .15s; }
+  .demo-item:hover{ background:rgba(255,255,255,0.04); }
+  .demo-tag{ font-size:9.5px; padding:2px 7px; border-radius:20px; font-weight:600; flex-shrink:0; width:78px; text-align:center; }
+  .demo-item .mono{ font-size:11px; color:var(--text); }
+
+  .partners-strip{ margin-top:18px; text-align:center; }
+  .partners-title{ font-size:10px; color:var(--muted); letter-spacing:.04em; margin-bottom:9px; }
+  .partners-badges{ display:flex; flex-wrap:wrap; gap:7px; justify-content:center; }
+  .partner-badge{
+    font-size:10px; padding:5px 10px; border-radius:6px; color:var(--muted);
+    border:1px solid var(--line); background:rgba(255,255,255,0.02); letter-spacing:.01em;
+  }
+
+  /* Modal de confirmación / reconfirmación */
+  .confirm-overlay{
+    position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center;
+    background:rgba(8,12,10,0.55); backdrop-filter:blur(3px); padding:20px;
+    animation: fadeInOverlay .2s ease;
+  }
+  @keyframes fadeInOverlay{ from{opacity:0;} to{opacity:1;} }
+  .confirm-card{
+    width:100%; max-width:380px; background:rgba(23,36,32,0.75); backdrop-filter:blur(20px) saturate(150%);
+    border:1px solid rgba(46,214,157,0.28); border-radius:14px; padding:26px;
+    animation: rise .3s cubic-bezier(.2,.8,.2,1) both;
+    text-align:center;
+  }
+  .confirm-icon{
+    width:38px; height:38px; border-radius:50%; margin:0 auto 14px; display:flex; align-items:center; justify-content:center;
+    border:1.5px solid rgba(46,214,157,0.4); color:var(--teal); font-weight:700; font-size:16px;
+  }
+  .confirm-msg{ font-size:13px; color:var(--text); line-height:1.5; margin-bottom:20px; }
+  .confirm-actions{ display:flex; gap:10px; justify-content:center; }
+  .confirm-yes{ background:var(--teal); }
   .shake{ animation: shake .4s; }
   @keyframes shake{ 10%,90%{transform:translateX(-2px);} 20%,80%{transform:translateX(4px);} 30%,50%,70%{transform:translateX(-6px);} 40%,60%{transform:translateX(6px);} }
   .err{ color:var(--danger); font-size:12px; margin:-8px 0 14px; display:none; }
@@ -347,17 +397,47 @@
       </div>
     </div>
     <h1>Ingresá a tu cuenta</h1>
-    <p class="lead">Prototipo de demostración — cargá los datos de prueba para explorar el panel.</p>
+    <p class="lead">Prototipo de demostración — elegí un perfil de prueba para explorar cómo cada tipo de empresa carga su información.</p>
 
     <label>Correo electrónico</label>
     <input type="text" id="user" value="demo@yaciminera.neuquen.ar">
     <label>Contraseña</label>
     <input type="password" id="pass" value="Demo2026!">
-    <div class="err" id="loginErr">Usuario o contraseña incorrectos. Usá los datos de prueba de abajo.</div>
+    <div class="err" id="loginErr">Usuario o contraseña incorrectos. Usá alguno de los accesos de prueba de abajo.</div>
     <button class="btn" onclick="tryLogin()">Ingresar</button>
 
-    <div class="demo-box">
-      Acceso de prueba: <b>demo@yaciminera.neuquen.ar</b> / <b>Demo2026!</b>
+    <div class="demo-list">
+      <div class="demo-list-title">Accesos de prueba — distintos perfiles</div>
+      <div class="demo-item" onclick="fillDemo('demo@yaciminera.neuquen.ar','Demo2026!')">
+        <span class="demo-tag" style="background:var(--teal-soft); color:var(--teal);">Hidrocarburos</span>
+        <span class="mono">demo@yaciminera.neuquen.ar</span>
+      </div>
+      <div class="demo-item" onclick="fillDemo('demo@mineraandina.com','Demo2026!')">
+        <span class="demo-tag" style="background:rgba(140,160,255,0.15); color:#8CA0FF;">Minería</span>
+        <span class="mono">demo@mineraandina.com</span>
+      </div>
+      <div class="demo-item" onclick="fillDemo('demo@almacenlaesquina.com','Demo2026!')">
+        <span class="demo-tag" style="background:var(--amber-soft); color:var(--amber);">Comercio</span>
+        <span class="mono">demo@almacenlaesquina.com</span>
+      </div>
+      <div class="demo-item" onclick="fillDemo('dueno@huellaneuquen.com','Demo2026!')">
+        <span class="demo-tag" style="background:rgba(217,113,78,0.15); color:var(--danger);">Dueño SaaS</span>
+        <span class="mono">dueno@huellaneuquen.com</span>
+      </div>
+      <div style="font-size:10.5px; color:var(--muted); margin-top:6px;">Contraseña para todos: <b class="mono" style="color:var(--text);">Demo2026!</b> — tocá un perfil para autocompletar</div>
+    </div>
+
+    <div class="partners-strip">
+      <div class="partners-title">Estándares y marcos que reconocemos</div>
+      <div class="partners-badges">
+        <span class="partner-badge">GHG Protocol</span>
+        <span class="partner-badge">ISO 14064-1</span>
+        <span class="partner-badge">Verra (VCS)</span>
+        <span class="partner-badge">Gold Standard</span>
+        <span class="partner-badge">ACR</span>
+        <span class="partner-badge">Climate Action Reserve</span>
+        <span class="partner-badge">ICVCM</span>
+      </div>
     </div>
   </div>
 </div>
@@ -377,12 +457,18 @@
       <div class="nav-item" data-view="audit" onclick="showView('audit', this)"><span class="nav-dot"></span> Auditoría</div>
       <div class="nav-item" data-view="reports" onclick="showView('reports', this)"><span class="nav-dot"></span> Reportes</div>
       <div class="nav-item" data-view="config" onclick="showView('config', this)"><span class="nav-dot"></span> Configuración</div>
+      <div class="nav-item" data-view="offset" onclick="showView('offset', this)"><span class="nav-dot"></span> Compensación</div>
       <div style="height:1px; background:var(--line); margin:12px 4px;"></div>
       <div style="font-size:10px; color:var(--muted); letter-spacing:.06em; padding:0 10px 6px;">ADMINISTRACIÓN</div>
       <div class="nav-item" data-view="admin" onclick="showView('admin', this)" style="color:var(--amber);"><span class="nav-dot"></span> Vista general (todo el país)</div>
       <div class="nav-item" data-view="owner" onclick="showView('owner', this)" style="color:var(--amber);"><span class="nav-dot"></span> Gestión de la plataforma</div>
       <div class="side-footer">
         YPF Satélite Neuquén S.A.<br>Plan Pyme · Período 2026
+        <div class="partners-badges" style="justify-content:flex-start; margin-top:10px;">
+          <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;">Verra</span>
+          <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;">Gold Standard</span>
+          <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;">ISO 14064</span>
+        </div>
       </div>
     </div>
 
@@ -625,7 +711,7 @@
           </div>
           <div class="field"><label>Contraseña temporal generada</label><input type="text" id="newCoPass" readonly value="Neuquen-8X2q"></div>
         </div>
-        <button class="btn" style="width:auto; padding:11px 20px;" onclick="createCompany()">+ Crear empresa</button>
+        <button class="btn" style="width:auto; padding:11px 20px;" onclick="confirmAction('¿Confirmás la creación de esta nueva empresa? Se va a generar un usuario administrador y enviar la contraseña temporal.', createCompany)">+ Crear empresa</button>
         <div id="createCoMsg" style="display:none; margin-top:12px; font-size:12.5px; color:var(--teal);"></div>
       </div>
 
@@ -650,6 +736,70 @@
         <div id="ownerDrilldown"></div>
       </div>
     </div><!-- /view-owner -->
+
+    <!-- ===== COMPENSACIÓN Y CRÉDITOS DE CARBONO ===== -->
+    <div id="view-offset" style="display:none;">
+      <div class="topbar">
+        <div><h1 class="display">Compensación</h1><p class="lead">Créditos de carbono comprados y avance hacia Net Zero</p></div>
+      </div>
+
+      <div class="panel" style="margin-bottom:16px; opacity:1; animation:none;">
+        <h3 style="margin-bottom:2px;">Avance hacia Net Zero</h3>
+        <div class="sub" style="margin-bottom:14px;">Emisiones brutas del período vs. créditos retirados/compensados</div>
+        <div class="kpi-row" style="margin-bottom:0;">
+          <div class="kpi" style="opacity:1; animation:none;">
+            <div class="kpi-label">Emisiones brutas</div>
+            <div class="kpi-value">4.820 <span style="font-size:12px;color:var(--muted)">tCO2e</span></div>
+          </div>
+          <div class="kpi" style="opacity:1; animation:none;">
+            <div class="kpi-label">Compensado con créditos</div>
+            <div class="kpi-value" style="color:var(--teal);">1.350 <span style="font-size:12px;color:var(--muted)">tCO2e</span></div>
+          </div>
+          <div class="kpi" style="opacity:1; animation:none;">
+            <div class="kpi-label">% hacia Net Zero</div>
+            <div class="kpi-value"><span id="netZeroPct">28</span>%</div>
+            <div class="progress-track"><div class="progress-fill" id="netZeroBar" style="width:28%;"></div></div>
+          </div>
+          <div class="kpi" style="opacity:1; animation:none;">
+            <div class="kpi-label">Emisiones netas restantes</div>
+            <div class="kpi-value" style="color:var(--amber);">3.470 <span style="font-size:12px;color:var(--muted)">tCO2e</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:16px; opacity:1; animation:none;">
+        <h3 style="margin-bottom:14px;">Registrar compra de créditos de carbono</h3>
+        <div class="field-row">
+          <div class="field"><label>Estándar / certificadora</label>
+            <select id="offStandard"><option>Verra (VCS)</option><option>Gold Standard</option><option>American Carbon Registry (ACR)</option><option>Climate Action Reserve (CAR)</option><option>Plan Vivo</option><option>Puro.earth</option></select>
+          </div>
+          <div class="field"><label>Proyecto / vendedor</label><input type="text" id="offVendor" placeholder="Ej. Proyecto de reforestación Patagonia Sur"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Cantidad (tCO2e)</label><input type="number" id="offQty" placeholder="Ej. 500"></div>
+          <div class="field"><label>Precio por tCO2e (USD)</label><input type="number" id="offPrice" placeholder="Ej. 12"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Fecha de compra</label><input type="date" id="offDate"></div>
+          <div class="field"><label>Contrato / certificado (si existe)</label>
+            <div class="upload-drop" style="padding:10px; margin-bottom:0;" onclick="alert('En producción, esto sube el contrato a Storage vinculado a este registro de compensación.')">📎 Adjuntar archivo</div>
+          </div>
+        </div>
+        <button class="btn" style="width:auto; padding:11px 20px;" onclick="confirmAction('¿Confirmás el registro de esta compra de créditos de carbono? Esto va a sumar a tu avance hacia Net Zero.', registerOffset)">Registrar compra</button>
+      </div>
+
+      <div class="panel table-panel" style="opacity:1; animation:none;">
+        <h3>Historial de compensaciones</h3>
+        <div class="sub">A quién le compraron, cuánto y a qué precio — visible siempre para trazabilidad</div>
+        <table>
+          <thead><tr><th>Estándar</th><th>Proyecto</th><th>Cantidad</th><th>Precio/tCO2e</th><th>Fecha</th><th>Contrato</th></tr></thead>
+          <tbody id="offsetTableBody">
+            <tr><td>Gold Standard</td><td>Parque eólico Comahue</td><td>850 tCO2e</td><td>USD 14</td><td>15/03/2026</td><td><span class="status-chip status-resolved">Adjunto</span></td></tr>
+            <tr><td>Verra (VCS)</td><td>Reforestación Patagonia Norte</td><td>500 tCO2e</td><td>USD 11</td><td>02/06/2026</td><td><span class="status-chip status-open">Pendiente</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
     <!-- ===== DATOS DE ACTIVIDAD ===== -->
     <div id="view-data" style="display:none;">
@@ -817,6 +967,23 @@
   }
 })();
 
+/* ---------- Burbujas de oxígeno (referencia literal al O2) ---------- */
+(function(){
+  const layer = document.getElementById('leavesLayer');
+  const N = window.innerWidth < 700 ? 7 : 12;
+  for(let i=0;i<N;i++){
+    const el = document.createElement('div');
+    el.className = 'o2bubble';
+    const size = 5 + Math.random()*9;
+    el.style.width = size+'px'; el.style.height = size+'px';
+    el.style.left = (Math.random()*100)+'vw';
+    const dur = 14 + Math.random()*16;
+    el.style.animationDuration = dur+'s';
+    el.style.animationDelay = (-Math.random()*dur)+'s';
+    layer.appendChild(el);
+  }
+})();
+
 /* ---------- Fondo animado: red de tokens de carbono (estética futurista-ecológica) ---------- */
 (function(){
   const canvas = document.getElementById('bgCanvas');
@@ -910,13 +1077,37 @@ function requestAudit(){
   }, 1900);
 }
 
+const demoAccounts = {
+  'demo@yaciminera.neuquen.ar': { name:'YPF Satélite Neuquén S.A.', sector:'hidrocarburos', role:'empresa' },
+  'demo@mineraandina.com':      { name:'Minera Andina S.A.',        sector:'mineria',       role:'empresa' },
+  'demo@almacenlaesquina.com':  { name:'Almacén La Esquina',        sector:'comercio',      role:'empresa' },
+  'dueno@huellaneuquen.com':    { name:'Huella Neuquén (dueño)',    sector:null,            role:'owner' },
+};
+let currentProfile = demoAccounts['demo@yaciminera.neuquen.ar'];
+
+function fillDemo(email, pass){
+  document.getElementById('user').value = email;
+  document.getElementById('pass').value = pass;
+}
+
 function tryLogin(){
   const u = document.getElementById('user').value.trim();
   const p = document.getElementById('pass').value.trim();
-  if(u === 'demo@yaciminera.neuquen.ar' && p === 'Demo2026!'){
+  if(demoAccounts[u] && p === 'Demo2026!'){
+    currentProfile = demoAccounts[u];
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    initDashboard();
+    document.querySelector('.side-footer').innerHTML = `${currentProfile.name}<br>${currentProfile.role==='owner' ? 'Acceso dueño de la plataforma' : 'Plan Pyme · Período 2026'}
+      <div class="partners-badges" style="justify-content:flex-start; margin-top:10px;">
+        <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;">Verra</span>
+        <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;">Gold Standard</span>
+        <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;">ISO 14064</span>
+      </div>`;
+    if(currentProfile.role === 'owner'){
+      showView('owner', document.querySelector('[data-view="owner"]'));
+    } else {
+      initDashboard();
+    }
   } else {
     const card = document.getElementById('loginCard');
     document.getElementById('loginErr').style.display = 'block';
@@ -1044,7 +1235,7 @@ document.getElementById('pass').addEventListener('keydown', e=>{ if(e.key==='Ent
 function showView(name, el){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   el.classList.add('active');
-  ['general','map','admin','owner','data','evidence','audit','reports','config'].forEach(v=>{
+  ['general','map','admin','owner','offset','data','evidence','audit','reports','config'].forEach(v=>{
     const node = document.getElementById('view-'+v);
     node.style.display = (v===name) ? 'block' : 'none';
     if(v===name){
@@ -1057,6 +1248,7 @@ function showView(name, el){
   if(name === 'admin'){ setTimeout(initAdminMap, 30); }
   if(name === 'config'){ updateProvinces(); }
   if(name === 'owner'){ initOwnerView(); }
+  if(name === 'offset'){ renderOffsetView(); }
   if(name === 'general'){ setTimeout(()=>{ fillCoverageBar(); if(window.Chart){ Object.values(Chart.instances||{}).forEach(c=>c.resize()); } }, 120); }
 }
 
@@ -1231,7 +1423,7 @@ function renderUsersTable(){
       <td class="mono">${u.visible ? u.pass : '••••••••'}</td>
       <td style="white-space:nowrap;">
         <span class="btn-sm" style="margin-right:6px;" onclick="toggleUserPass(${i})">${u.visible ? 'Ocultar' : 'Ver'}</span>
-        <span class="btn-sm xlsx" onclick="resetUserPass(${i})">Resetear</span>
+        <span class="btn-sm xlsx" onclick="confirmAction('¿Confirmás resetear la contraseña de este usuario? La contraseña anterior dejará de funcionar.', ()=>resetUserPass(${i}))">Resetear</span>
       </td>
     </tr>`).join('');
 }
@@ -1380,6 +1572,84 @@ function addFacilityFromSearch(){
   input.value = '';
   renderFacilities();
   map.setView([facilities[facilities.length-1].lat, facilities[facilities.length-1].lng], 8);
+}
+</script>
+
+<div id="confirmOverlay" class="confirm-overlay" style="display:none;">
+  <div class="confirm-card">
+    <div class="confirm-icon">?</div>
+    <div id="confirmMsg" class="confirm-msg"></div>
+    <div class="confirm-actions">
+      <div class="btn-sm" onclick="closeConfirm()">Cancelar</div>
+      <div class="btn confirm-yes" onclick="confirmStep2()" style="width:auto; padding:10px 18px;">Continuar</div>
+    </div>
+  </div>
+</div>
+<div id="reconfirmOverlay" class="confirm-overlay" style="display:none;">
+  <div class="confirm-card">
+    <div class="confirm-icon" style="color:var(--amber); border-color:rgba(232,163,61,0.4);">!</div>
+    <div class="confirm-msg">Última confirmación — esta acción va a quedar registrada en el historial de auditoría. ¿Seguimos?</div>
+    <div class="confirm-actions">
+      <div class="btn-sm" onclick="closeConfirm()">Cancelar</div>
+      <div class="btn confirm-yes" onclick="confirmFinal()" style="width:auto; padding:10px 18px;">Sí, confirmar</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- Modal de confirmación / reconfirmación reutilizable ---------- */
+let pendingAction = null;
+function confirmAction(message, actionFn){
+  pendingAction = actionFn;
+  document.getElementById('confirmMsg').textContent = message;
+  document.getElementById('confirmOverlay').style.display = 'flex';
+}
+function confirmStep2(){
+  document.getElementById('confirmOverlay').style.display = 'none';
+  document.getElementById('reconfirmOverlay').style.display = 'flex';
+}
+function confirmFinal(){
+  document.getElementById('reconfirmOverlay').style.display = 'none';
+  if(pendingAction) pendingAction();
+  pendingAction = null;
+}
+function closeConfirm(){
+  document.getElementById('confirmOverlay').style.display = 'none';
+  document.getElementById('reconfirmOverlay').style.display = 'none';
+  pendingAction = null;
+}
+
+/* ---------- Compensación / créditos de carbono ---------- */
+const offsetPurchases = [
+  { standard:'Gold Standard', vendor:'Parque eólico Comahue', qty:850, price:14, date:'15/03/2026', hasContract:true },
+  { standard:'Verra (VCS)',   vendor:'Reforestación Patagonia Norte', qty:500, price:11, date:'02/06/2026', hasContract:false },
+];
+function registerOffset(){
+  const standard = document.getElementById('offStandard').value;
+  const vendor = document.getElementById('offVendor').value.trim() || 'Sin especificar';
+  const qty = parseFloat(document.getElementById('offQty').value) || 0;
+  const price = document.getElementById('offPrice').value || '—';
+  const date = document.getElementById('offDate').value || new Date().toLocaleDateString('es-AR');
+  offsetPurchases.push({ standard, vendor, qty, price, date, hasContract:false });
+  renderOffsetView();
+}
+function renderOffsetView(){
+  const tbody = document.getElementById('offsetTableBody');
+  if(!tbody) return;
+  tbody.innerHTML = offsetPurchases.map(o => `
+    <tr>
+      <td>${o.standard}</td><td>${o.vendor}</td><td>${o.qty.toLocaleString('es-AR')} tCO2e</td>
+      <td>USD ${o.price}</td><td>${o.date}</td>
+      <td><span class="status-chip ${o.hasContract ? 'status-resolved' : 'status-open'}">${o.hasContract ? 'Adjunto' : 'Pendiente'}</span></td>
+    </tr>`).join('');
+
+  const totalOffset = offsetPurchases.reduce((s,o)=>s+o.qty, 0);
+  const gross = 4820;
+  const pct = Math.min(100, Math.round((totalOffset/gross)*100));
+  const pctEl = document.getElementById('netZeroPct');
+  const barEl = document.getElementById('netZeroBar');
+  if(pctEl){ pctEl.textContent = pct; }
+  if(barEl){ setTimeout(()=>{ barEl.style.width = pct+'%'; }, 60); }
 }
 </script>
 </body>
