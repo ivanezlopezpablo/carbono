@@ -236,6 +236,63 @@
   }
   @keyframes toastIn{ from{opacity:0; transform:translateX(20px);} to{opacity:1; transform:translateX(0);} }
   .toast-out{ animation: toastOut .4s ease both; }
+
+  /* ---------- Motion Graphics Icons (reemplazo de emojis) ---------- */
+  .mgi{ display:inline-block; vertical-align:-2px; color:inherit; }
+
+  .mgi-compass{ animation: mgiSpin 7s linear infinite; }
+  @keyframes mgiSpin{ to{ transform:rotate(360deg); } }
+
+  .mgi-bell{ animation: mgiRing 3.6s ease-in-out infinite; transform-origin:50% 15%; }
+  @keyframes mgiRing{
+    0%,82%,100%{ transform:rotate(0deg); }
+    85%{ transform:rotate(-13deg); } 88%{ transform:rotate(11deg); }
+    91%{ transform:rotate(-8deg); } 94%{ transform:rotate(5deg); } 97%{ transform:rotate(0deg); }
+  }
+
+  .mgi-warn{ animation: mgiPulse 1.7s ease-in-out infinite; }
+  @keyframes mgiPulse{ 0%,100%{ opacity:1; } 50%{ opacity:.5; } }
+
+  .mgi-check{ stroke-dasharray:30; stroke-dashoffset:30; animation: mgiDraw .5s ease forwards; }
+  @keyframes mgiDraw{ to{ stroke-dashoffset:0; } }
+
+  .mgi-clip{ animation: mgiBob 2.3s ease-in-out infinite; }
+  @keyframes mgiBob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-2px); } }
+
+  .mgi-bulb{ animation: mgiGlow 2.1s ease-in-out infinite; }
+  @keyframes mgiGlow{ 0%,100%{ filter:drop-shadow(0 0 0 rgba(46,214,157,0)); } 50%{ filter:drop-shadow(0 0 4px rgba(46,214,157,0.65)); } }
+
+  .mgi-arrow.mgi-down{ animation: mgiBounceDown 1.5s ease-in-out infinite; }
+  @keyframes mgiBounceDown{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(2px); } }
+  .mgi-arrow.mgi-up{ animation: mgiBounceUp 1.5s ease-in-out infinite; }
+  @keyframes mgiBounceUp{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-2px); } }
+
+  .hamburger-btn{ display:none; flex-direction:column; gap:4px; align-items:center; justify-content:center; }
+  .hb-line{ width:16px; height:1.6px; background:currentColor; border-radius:2px; transition:transform .25s ease, opacity .2s ease; }
+  .hamburger-btn.open .hb-line:nth-child(1){ transform:translateY(5.6px) rotate(45deg); }
+  .hamburger-btn.open .hb-line:nth-child(2){ opacity:0; }
+  .hamburger-btn.open .hb-line:nth-child(3){ transform:translateY(-5.6px) rotate(-45deg); }
+
+  /* ---------- Pantalla de carga (Créditos de Carbono / GEI / Oxígeno) ---------- */
+  #loading-screen{
+    position:fixed; inset:0; z-index:80; display:flex; align-items:center; justify-content:center;
+    background:rgba(13,23,18,0.93); backdrop-filter:blur(2px);
+  }
+  .loading-inner{ text-align:center; position:relative; z-index:2; }
+  .loading-orb{ position:relative; width:120px; height:120px; margin:0 auto 22px; }
+  .loading-ring{ width:120px; height:120px; transform:rotate(-90deg); }
+  .loading-ring-arc{ animation: loadingSpin 1.4s linear infinite; transform-origin:60px 60px; }
+  @keyframes loadingSpin{ to{ transform:rotate(360deg); } }
+  .loading-orb-core{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    animation: loadingPulse 1.8s ease-in-out infinite;
+  }
+  @keyframes loadingPulse{ 0%,100%{ transform:scale(1); opacity:.85; } 50%{ transform:scale(1.12); opacity:1; } }
+  .loading-brand{ font-family:'Space Grotesk'; font-weight:600; font-size:17px; margin-bottom:6px; }
+  .loading-status{ font-size:12.5px; color:var(--muted); margin-bottom:18px; min-height:16px; transition:opacity .25s ease; }
+  .loading-bar-track{ width:220px; height:4px; border-radius:4px; background:var(--surface-2); margin:0 auto; overflow:hidden; }
+  .loading-bar-fill{ height:100%; width:0%; border-radius:4px; background:linear-gradient(90deg,#0E8F63,#2ED69D); transition:width .4s ease; }
+  .loading-tags{ display:flex; gap:8px; justify-content:center; margin-top:22px; flex-wrap:wrap; }
   @keyframes toastOut{ to{opacity:0; transform:translateX(20px);} }
   .shake{ animation: shake .4s; }
   @keyframes shake{ 10%,90%{transform:translateX(-2px);} 20%,80%{transform:translateX(4px);} 30%,50%,70%{transform:translateX(-6px);} 40%,60%{transform:translateX(6px);} }
@@ -398,7 +455,18 @@
   .search-bar input{ flex:1; background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:9px 12px; color:var(--text); font-size:12.5px; }
   .search-bar input:focus{ outline:none; border-color:var(--teal); }
 
-  .hamburger-btn{ display:none; }
+  .cat-suggestions{
+    position:absolute; top:calc(100% + 4px); left:0; right:0; z-index:10;
+    background:rgba(23,36,32,0.95); backdrop-filter:blur(16px); border:1px solid var(--line); border-radius:10px;
+    max-height:280px; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.4);
+  }
+  .cat-suggestion{ display:flex; justify-content:space-between; align-items:center; padding:11px 14px; cursor:pointer; border-bottom:1px solid var(--line); transition:background .15s; }
+  .cat-suggestion:last-child{ border-bottom:none; }
+  .cat-suggestion:hover{ background:var(--teal-soft); }
+  .cat-suggestion .cs-name{ font-size:12.5px; color:var(--text); }
+  .cat-suggestion .cs-meta{ font-size:10.5px; color:var(--muted); }
+  .cat-suggestion .cs-scope{ font-size:9.5px; padding:2px 7px; border-radius:20px; background:var(--surface-2); color:var(--muted); flex-shrink:0; }
+
   @media (max-width: 880px){
     .sidebar{
       position:fixed; inset:0 auto 0 0; width:250px; z-index:40;
@@ -498,6 +566,29 @@
   </div>
 </div>
 
+<!-- ================= LOADING ================= -->
+<div id="loading-screen" style="display:none;">
+  <div class="loading-inner">
+    <div class="loading-orb">
+      <svg viewBox="0 0 120 120" class="loading-ring">
+        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(46,214,157,0.15)" stroke-width="3"/>
+        <circle cx="60" cy="60" r="52" fill="none" stroke="#2ED69D" stroke-width="3" stroke-linecap="round" stroke-dasharray="326" stroke-dashoffset="245" class="loading-ring-arc"/>
+      </svg>
+      <div class="loading-orb-core">
+        <svg viewBox="0 0 24 24" width="30" height="30"><path fill="#2ED69D" d="M12 2C7 3 3 8 3 13c0 4 3 7 7 7 1 0 2-.2 3-.6C10 17 8 13 8 9c4 2 8 1 10-3-3-1-6-1-6-4z" opacity="0.9"/></svg>
+      </div>
+    </div>
+    <div class="loading-brand">Huella Neuquén</div>
+    <div class="loading-status" id="loadingStatus">Sincronizando datos GEI…</div>
+    <div class="loading-bar-track"><div class="loading-bar-fill" id="loadingBarFill"></div></div>
+    <div class="loading-tags">
+      <span class="partner-badge" style="font-size:9px; padding:3px 8px;">Créditos de Carbono</span>
+      <span class="partner-badge" style="font-size:9px; padding:3px 8px;">Gases de Efecto Invernadero</span>
+      <span class="partner-badge" style="font-size:9px; padding:3px 8px;">Balance de Oxígeno</span>
+    </div>
+  </div>
+</div>
+
 <!-- ================= APP ================= -->
 <div id="app">
   <div class="shell">
@@ -507,7 +598,7 @@
         <div class="brand-mark" style="width:28px;height:28px;font-size:12px;">HN</div>
         <div class="brand-name" style="font-size:14.5px;">Huella Neuquén</div>
       </div>
-      <div class="nav-item" onclick="startTour()" style="color:var(--teal); border:1px dashed rgba(46,214,157,0.35); margin-bottom:10px;"><span class="nav-dot"></span> 🧭 Recorrido guiado</div>
+      <div class="nav-item" onclick="startTour()" style="color:var(--teal); border:1px dashed rgba(46,214,157,0.35); margin-bottom:10px;"><span class="nav-dot"></span> <svg class="mgi mgi-compass" viewBox="0 0 24 24" width="13" height="13"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M15.5 8.5l-2.2 5.2-5.2 2.2 2.2-5.2 5.2-2.2z" fill="currentColor"/></svg> Recorrido guiado</div>
       <div class="nav-item active" data-view="general" onclick="showView('general', this)"><span class="nav-dot"></span> Panel general</div>
       <div class="nav-item" data-view="data" onclick="showView('data', this)"><span class="nav-dot"></span> Datos de actividad</div>
       <div class="nav-item" data-view="map" onclick="showView('map', this)"><span class="nav-dot"></span> Mapa de calor</div>
@@ -532,10 +623,10 @@
 
     <div class="main">
       <div style="display:flex; align-items:center; justify-content:space-between;">
-        <div class="hamburger-btn" onclick="toggleSidebar()">☰</div>
+        <div class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()"><span class="hb-line"></span><span class="hb-line"></span><span class="hb-line"></span></div>
         <div style="flex:1;"></div>
         <div class="notif-bell" onclick="toggleNotifPanel()">
-          🔔<span class="notif-count" id="notifCount" style="display:none;">0</span>
+          <svg class="mgi mgi-bell" viewBox="0 0 24 24" width="17" height="17"><path d="M12 3a5 5 0 0 0-5 5v3.3c0 .7-.3 1.4-.8 1.9L5 15h14l-1.2-1.8c-.5-.5-.8-1.2-.8-1.9V8a5 5 0 0 0-5-5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9.5 18a2.5 2.5 0 0 0 5 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="notif-count" id="notifCount" style="display:none;">0</span>
           <div class="notif-panel" id="notifPanel" style="display:none;">
             <div class="notif-panel-title">Notificaciones</div>
             <div id="notifList"></div>
@@ -566,17 +657,17 @@
         <div class="kpi" style="animation-delay:.05s">
           <div class="kpi-label">Emisiones totales</div>
           <div class="kpi-value"><span id="kpiTotal">0</span> <span style="font-size:13px;color:var(--muted)">tCO2e</span></div>
-          <div class="kpi-delta up">↑ 8.2% vs. período anterior</div>
+          <div class="kpi-delta up"><svg class="mgi mgi-arrow mgi-up" viewBox="0 0 24 24" width="11" height="11"><path d="M12 19V6M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg> 8.2% vs. período anterior</div>
         </div>
         <div class="kpi" style="animation-delay:.12s">
           <div class="kpi-label">Alcance 1</div>
           <div class="kpi-value"><span id="kpiS1">0</span></div>
-          <div class="kpi-delta up">↑ 11% · combustión + fugitivas</div>
+          <div class="kpi-delta up"><svg class="mgi mgi-arrow mgi-up" viewBox="0 0 24 24" width="11" height="11"><path d="M12 19V6M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg> 11% · combustión + fugitivas</div>
         </div>
         <div class="kpi" style="animation-delay:.19s">
           <div class="kpi-label">Alcance 2 (market-based)</div>
           <div class="kpi-value"><span id="kpiS2">0</span></div>
-          <div class="kpi-delta down">↓ 4% · más energía certificada</div>
+          <div class="kpi-delta down"><svg class="mgi mgi-arrow mgi-down" viewBox="0 0 24 24" width="11" height="11"><path d="M12 5v13M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg> 4% · más energía certificada</div>
         </div>
         <div class="kpi" style="animation-delay:.26s">
           <div class="kpi-label">Cobertura de datos primarios</div>
@@ -616,7 +707,7 @@
         <div class="sub" style="margin-bottom:14px;">No todos los GEI pesan igual — cada uno se convierte a tCO2e según su Potencial de Calentamiento Global (GWP)</div>
         <table>
           <thead><tr><th>Gas</th><th>Origen principal en tu empresa</th><th>Emitido</th><th>GWP (AR6)</th><th>Equivalente</th></tr></thead>
-          <tbody>
+          <tbody id="gasTableBody">
             <tr><td><b>CO₂</b> — Dióxido de carbono</td><td>Combustión de diésel/gas natural</td><td>3.180 kg</td><td class="mono">1</td><td class="mono">3.18 tCO2e</td></tr>
             <tr><td><b>CH₄</b> — Metano</td><td>Venteo y flaring de gas</td><td>42 kg</td><td class="mono">27.9</td><td class="mono">1.17 tCO2e</td></tr>
             <tr><td><b>N₂O</b> — Óxido nitroso</td><td>Combustión estacionaria</td><td>1.4 kg</td><td class="mono">273</td><td class="mono">0.38 tCO2e</td></tr>
@@ -655,7 +746,7 @@
             </div>
           </div>
           <div class="ai-item">
-            <div class="ai-icon">↗</div>
+            <div class="ai-icon"><svg class="mgi mgi-arrow" viewBox="0 0 24 24" width="12" height="12" style="transform:rotate(45deg);"><path d="M12 19V6M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
             <div class="ai-text">
               Si certificás el <b>100% de tu energía eléctrica</b> con origen renovable, tu Alcance 2 (market-based) podría bajar un 22% adicional.
               <div class="ai-tag">Oportunidad de reducción</div>
@@ -720,7 +811,7 @@
         <div class="kpi" style="opacity:1; animation:none;">
           <div class="kpi-label">Emisiones totales país</div>
           <div class="kpi-value">58.940 <span style="font-size:12px;color:var(--muted)">tCO2e</span></div>
-          <div class="kpi-delta up">↑ 5.1%</div>
+          <div class="kpi-delta up"><svg class="mgi mgi-arrow mgi-up" viewBox="0 0 24 24" width="11" height="11"><path d="M12 19V6M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg> 5.1%</div>
         </div>
         <div class="kpi" style="opacity:1; animation:none;">
           <div class="kpi-label">Provincias con datos</div>
@@ -760,7 +851,7 @@
         <div class="sub">Vista consolidada — todas las cuentas de la plataforma</div>
         <div class="report-card" style="margin-top:2px; margin-bottom:16px;">
           <div><div class="rtitle">Informe de empresas registradas</div><div class="rsub">Listado completo con sector, provincia, emisiones y estado — con fondo institucional</div></div>
-          <div class="report-actions"><div class="btn-sm pdf" onclick="downloadCompaniesPDF()">↓ PDF</div></div>
+          <div class="report-actions"><div class="btn-sm pdf" onclick="downloadCompaniesPDF()"><svg class="mgi mgi-arrow mgi-down" viewBox="0 0 24 24" width="11" height="11"><path d="M12 5v13M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF</div></div>
         </div>
         <table>
           <thead><tr><th>Empresa</th><th>Sector</th><th>Provincia</th><th>Emisiones</th><th>Estado</th></tr></thead>
@@ -871,7 +962,7 @@
         <div class="field-row">
           <div class="field"><label>Fecha de compra</label><input type="date" id="offDate"></div>
           <div class="field"><label>Contrato / certificado (si existe)</label>
-            <div class="upload-drop" style="padding:10px; margin-bottom:0;" onclick="alert('En producción, esto sube el contrato a Storage vinculado a este registro de compensación.')">📎 Adjuntar archivo</div>
+            <div class="upload-drop" style="padding:10px; margin-bottom:0;" onclick="alert('En producción, esto sube el contrato a Storage vinculado a este registro de compensación.')"><svg class="mgi mgi-clip" viewBox="0 0 24 24" width="13" height="13"><path d="M8 12.8l6.2-6.2a2.8 2.8 0 1 1 4 4L10.7 18a4.6 4.6 0 1 1-6.5-6.5L11.5 4.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg> Adjuntar archivo</div>
           </div>
         </div>
         <button class="btn" style="width:auto; padding:11px 20px;" onclick="confirmAction('¿Confirmás el registro de esta compra de créditos de carbono? Esto va a sumar a tu avance hacia Net Zero.', registerOffset)">Registrar compra</button>
@@ -896,18 +987,50 @@
         <div><h1 class="display">Datos de actividad</h1><p class="lead">Cargá consumos por instalación — el formulario se adapta al rubro de tu empresa</p></div>
         <div style="display:flex; gap:10px;">
           <div class="search-bar" style="margin-bottom:0;"><select id="dataPeriodFilter" onchange="filterDataTable()" style="background:var(--surface-2); border:1px solid var(--line); color:var(--text); border-radius:8px; padding:9px 12px; font-size:12.5px;"><option value="todos">Todo el período</option><option value="diario">Hoy</option><option value="semanal">Esta semana</option><option value="mensual">Este mes</option><option value="anual">Este año</option></select></div>
-          <button class="btn" style="width:auto; padding:11px 18px;" onclick="document.getElementById('vehicleForm').scrollIntoView({behavior:'smooth'})">+ Nuevo dato</button>
+          <button class="btn" style="width:auto; padding:11px 18px;" onclick="document.getElementById('categorySearchPanel').scrollIntoView({behavior:'smooth'}); document.getElementById('catSearchInput').focus();">+ Nuevo dato</button>
         </div>
       </div>
 
       <div class="panel" style="margin-bottom:16px; opacity:1; animation:none; border-color:rgba(232,163,61,0.3);">
-        <h3 style="margin-bottom:2px;">⚠ Obligatorio para tu rubro</h3>
+        <h3 style="margin-bottom:2px;"><svg class="mgi mgi-warn" viewBox="0 0 24 24" width="13" height="13"><path d="M12 3.5l9.5 16.5H2.5L12 3.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><line x1="12" y1="10" x2="12" y2="14.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="17.3" r="1" fill="currentColor"/></svg> Obligatorio para tu rubro</h3>
         <div class="sub" style="margin-bottom:10px;">Hidrocarburos — extracción: te falta cargar <b style="color:var(--text)">venteo/flaring del mes en curso</b> y <b style="color:var(--text)">combustión móvil de flota</b>. Estos datos son obligatorios para poder solicitar tu próxima auditoría.</div>
-        <div class="sub" style="color:var(--muted);">💡 Sugerido (no obligatorio, pero mejora tu cobertura de datos primarios): viajes de negocio del equipo comercial, residuos de oficina.</div>
+        <div class="sub" style="color:var(--muted);"><svg class="mgi mgi-bulb" viewBox="0 0 24 24" width="13" height="13"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3 11.2c.6.4 1 1.1 1 1.8h4c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Sugerido (no obligatorio, pero mejora tu cobertura de datos primarios): viajes de negocio del equipo comercial, residuos de oficina.</div>
       </div>
 
-      <!-- Carga de vehículos con auto-detección de factor de emisión -->
-      <div class="panel" id="vehicleForm" style="margin-bottom:16px; opacity:1; animation:none;">
+      <!-- Buscador general: cualquier dato relacionado a GEI, no solo vehículos -->
+      <div class="panel" id="categorySearchPanel" style="margin-bottom:16px; opacity:1; animation:none;">
+        <h3 style="margin-bottom:2px;">¿Qué querés cargar?</h3>
+        <div class="sub" style="margin-bottom:12px;">Buscá cualquier cosa relacionada a tus emisiones — combustible, electricidad, agua, residuos, viajes, ropa u otros bienes comprados, refrigerantes, vehículos, lo que sea. El sistema reconoce la categoría y trae el factor de emisión solo.</div>
+        <div style="position:relative;">
+          <input type="text" id="catSearchInput" placeholder="Ej. ropa, electricidad, agua, viaje en avión, gas natural…" oninput="searchCategory()" onfocus="searchCategory()" autocomplete="off">
+          <div id="catSuggestions" class="cat-suggestions" style="display:none;"></div>
+        </div>
+        <div id="catEmptyHint" style="font-size:11.5px; color:var(--muted); margin-top:10px;">💡 Si no encontrás la categoría exacta, elegí la más parecida — igual queda trazado y siempre podés agregar una nota aclaratoria en Evidencias.</div>
+      </div>
+
+      <!-- Carga genérica: cualquier categoría que NO sea vehículo (unidad + cantidad + factor automático) -->
+      <div class="panel" id="genericForm" style="display:none; margin-bottom:16px; opacity:1; animation:none;">
+        <h3 id="genericFormTitle" style="margin-bottom:2px;">—</h3>
+        <div class="sub" id="genericFormSub" style="margin-bottom:14px;">—</div>
+        <div class="field-row">
+          <div class="field"><label id="genericQtyLabel">Cantidad</label><input type="number" id="genericQty" oninput="updateGenericFactor()" placeholder="Ej. 12"></div>
+          <div class="field"><label>Instalación / área</label><input type="text" id="genericFacility" placeholder="Ej. Oficinas Neuquén Capital"></div>
+        </div>
+        <div class="report-card" style="background:var(--teal-soft); border-color:rgba(46,214,157,0.3); margin-top:4px;">
+          <div>
+            <div class="rtitle">Factor de emisión detectado automáticamente</div>
+            <div class="rsub" id="genericFactorText">Ingresá la cantidad para calcular</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px; color:var(--muted);">Emisión estimada</div>
+            <div class="mono" id="genericResult" style="font-size:18px; font-weight:600; color:var(--teal);">— tCO2e</div>
+          </div>
+        </div>
+        <button class="btn" style="width:auto; padding:11px 20px; margin-top:14px;" onclick="confirmAction('¿Confirmás cargar este dato de actividad? Va a sumar a tu inventario del período y quedar trazado para auditoría.', addGenericData)">Guardar dato</button>
+      </div>
+
+      <!-- Carga de vehículos con auto-detección de factor de emisión (uno de los casos especiales del buscador) -->
+      <div class="panel" id="vehicleForm" style="display:none; margin-bottom:16px; opacity:1; animation:none;">
         <h3 style="margin-bottom:2px;">Combustión móvil — cargar vehículo</h3>
         <div class="sub" style="margin-bottom:14px;">Elegí marca, modelo y combustible — el sistema calcula el factor de emisión solo. Podés cargar un vehículo individual o el consumo total de la flota.</div>
         <div class="field-row">
@@ -970,7 +1093,7 @@
       </div>
       <div class="panel" style="opacity:1; animation:none;">
         <div class="upload-drop" onclick="alert('En producción, esto sube el archivo a Supabase/Firebase Storage con su hash de integridad.')">
-          📎 Arrastrá una factura o hacé clic para subir un archivo
+          <svg class="mgi mgi-clip" viewBox="0 0 24 24" width="13" height="13"><path d="M8 12.8l6.2-6.2a2.8 2.8 0 1 1 4 4L10.7 18a4.6 4.6 0 1 1-6.5-6.5L11.5 4.2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg> Arrastrá una factura o hacé clic para subir un archivo
         </div>
         <table>
           <thead><tr><th>Archivo</th><th>Vinculado a</th><th>Subido por</th><th>Estado</th></tr></thead>
@@ -1017,8 +1140,8 @@
         <div class="report-card">
           <div><div class="rtitle">Audit Package — Período 2026</div><div class="rsub">Resumen ejecutivo + desglose por alcance, con fondo institucional</div></div>
           <div class="report-actions">
-            <div class="btn-sm pdf" onclick="downloadAuditPDF()">↓ PDF</div>
-            <div class="btn-sm xlsx" onclick="downloadInventoryXLSX()">↓ Excel</div>
+            <div class="btn-sm pdf" onclick="downloadAuditPDF()"><svg class="mgi mgi-arrow mgi-down" viewBox="0 0 24 24" width="11" height="11"><path d="M12 5v13M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF</div>
+            <div class="btn-sm xlsx" onclick="downloadInventoryXLSX()"><svg class="mgi mgi-arrow mgi-down" viewBox="0 0 24 24" width="11" height="11"><path d="M12 5v13M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg> Excel</div>
           </div>
         </div>
       </div>
@@ -1032,19 +1155,19 @@
       <div class="panel" style="opacity:1; animation:none;">
         <div class="report-card">
           <div><div class="rtitle">Resumen ejecutivo de emisiones</div><div class="rsub">tCO2e totales por alcance — 1 página, con fondo de marca</div></div>
-          <div class="report-actions"><div class="btn-sm pdf" onclick="downloadSummaryPDF()">↓ PDF</div></div>
+          <div class="report-actions"><div class="btn-sm pdf" onclick="downloadSummaryPDF()"><svg class="mgi mgi-arrow mgi-down" viewBox="0 0 24 24" width="11" height="11"><path d="M12 5v13M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF</div></div>
         </div>
         <div class="report-card">
           <div><div class="rtitle">Inventario detallado</div><div class="rsub">Una fila por dato cargado: actividad → factor → GWP → tCO2e</div></div>
-          <div class="report-actions"><div class="btn-sm xlsx" onclick="downloadInventoryXLSX()">↓ Excel</div></div>
+          <div class="report-actions"><div class="btn-sm xlsx" onclick="downloadInventoryXLSX()"><svg class="mgi mgi-arrow mgi-down" viewBox="0 0 24 24" width="11" height="11"><path d="M12 5v13M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg> Excel</div></div>
         </div>
         <div class="report-card">
           <div><div class="rtitle">Alcance 2 — dual reporting</div><div class="rsub">Location-based vs. market-based, lado a lado</div></div>
-          <div class="report-actions"><div class="btn-sm pdf" onclick="downloadSummaryPDF()">↓ PDF</div><div class="btn-sm xlsx" onclick="downloadInventoryXLSX()">↓ Excel</div></div>
+          <div class="report-actions"><div class="btn-sm pdf" onclick="downloadSummaryPDF()"><svg class="mgi mgi-arrow mgi-down" viewBox="0 0 24 24" width="11" height="11"><path d="M12 5v13M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF</div><div class="btn-sm xlsx" onclick="downloadInventoryXLSX()"><svg class="mgi mgi-arrow mgi-down" viewBox="0 0 24 24" width="11" height="11"><path d="M12 5v13M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg> Excel</div></div>
         </div>
         <div class="report-card" style="margin-bottom:0;">
           <div><div class="rtitle">Audit Package completo</div><div class="rsub">Incluye evidencias, hallazgos y trazabilidad — para el auditor externo</div></div>
-          <div class="report-actions"><div class="btn-sm pdf" onclick="downloadAuditPDF()">↓ PDF</div><div class="btn-sm xlsx" onclick="downloadInventoryXLSX()">↓ Excel</div></div>
+          <div class="report-actions"><div class="btn-sm pdf" onclick="downloadAuditPDF()"><svg class="mgi mgi-arrow mgi-down" viewBox="0 0 24 24" width="11" height="11"><path d="M12 5v13M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF</div><div class="btn-sm xlsx" onclick="downloadInventoryXLSX()"><svg class="mgi mgi-arrow mgi-down" viewBox="0 0 24 24" width="11" height="11"><path d="M12 5v13M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg> Excel</div></div>
         </div>
       </div>
     </div>
@@ -1219,12 +1342,12 @@ function requestAudit(){
     const row = document.getElementById(`auditorRowX${winnerIdx}`);
     row.style.background = 'var(--teal-soft)';
     row.style.borderRadius = '8px';
-    row.querySelector('div:last-child').innerHTML = '<span style="color:var(--teal); font-weight:600;">✓ aceptó la auditoría</span>';
+    row.querySelector('div:last-child').innerHTML = '<span style="color:var(--teal); font-weight:600;"><svg class=&quot;mgi mgi-check&quot; viewBox=&quot;0 0 24 24&quot; width=&quot;13&quot; height=&quot;13&quot;><path d=&quot;M4 12.5l5 5L20 6&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.3&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/></svg> aceptó la auditoría</span>';
     const note = document.createElement('div');
     note.style.cssText = 'margin-top:10px; font-size:12px; color:var(--muted);';
     note.innerHTML = `El resto ya no puede tomar esta solicitud — quedó reservada en cuanto ${auditorPool[winnerIdx].name.split(' —')[0]} la aceptó.`;
     target.appendChild(note);
-    pushNotification(`✓ ${auditorPool[winnerIdx].name.split(' —')[0]} aceptó tu solicitud de auditoría.`);
+    pushNotification(`<svg class=&quot;mgi mgi-check&quot; viewBox=&quot;0 0 24 24&quot; width=&quot;13&quot; height=&quot;13&quot;><path d=&quot;M4 12.5l5 5L20 6&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.3&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/></svg> ${auditorPool[winnerIdx].name.split(' —')[0]} aceptó tu solicitud de auditoría.`);
   }, 1900);
 }
 
@@ -1235,6 +1358,56 @@ const demoAccounts = {
   'dueno@huellaneuquen.com':    { name:'Huella Neuquén (dueño)',    sector:null,            role:'owner' },
 };
 let currentProfile = demoAccounts['demo@yaciminera.neuquen.ar'];
+
+// Dataset propio por rubro — cada acceso demo ve sus propios números, no genéricos
+const profileDataSets = {
+  hidrocarburos: {
+    kpiTotal:4820, kpiS1:3110, kpiS2:1240, kpiCov:74,
+    months:['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago'],
+    line:{ s1:[320,340,360,410,430,470,510,530], s2:[180,175,160,150,145,140,132,128], s3:[60,64,70,68,74,80,86,90] },
+    donut:{ labels:['Fugitivas/venteo','Combustión móvil','Electricidad','Viajes/otros'], data:[42,26,21,11] },
+    facility:{ labels:['Loma Campana','Base Añelo','Ofic. Neuquén','Rincón Sauces'], data:[2140,980,210,1490] },
+    gas:[
+      ['CO₂','Dióxido de carbono','Combustión de diésel/gas natural','3.180 kg','1','3.18 tCO2e'],
+      ['CH₄','Metano','Venteo y flaring de gas','42 kg','27.9','1.17 tCO2e'],
+      ['N₂O','Óxido nitroso','Combustión estacionaria','1.4 kg','273','0.38 tCO2e'],
+      ['HFCs','Hidrofluorocarbonos','Fugas de refrigeración/aire acondicionado','0.3 kg','~1.400*','0.09 tCO2e'],
+      ['PFCs','Perfluorocarbonos','No detectado en tu rubro','0 kg','~7.000*','0 tCO2e'],
+      ['SF₆','Hexafluoruro de azufre','No detectado en tu rubro','0 kg','~25.200','0 tCO2e'],
+    ],
+  },
+  mineria: {
+    kpiTotal:3120, kpiS1:2400, kpiS2:620, kpiCov:61,
+    months:['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago'],
+    line:{ s1:[210,225,240,260,255,270,290,300], s2:[90,88,85,80,78,75,70,68], s3:[30,32,35,34,36,40,42,44] },
+    donut:{ labels:['Voladura/explosivos','Maquinaria pesada','Electricidad','Transporte de mineral'], data:[38,29,20,13] },
+    facility:{ labels:['Cantera Norte','Planta Procesamiento','Depósito de Colas','Oficinas San Juan'], data:[1450,980,410,280] },
+    gas:[
+      ['CO₂','Dióxido de carbono','Maquinaria pesada y transporte','2.200 kg','1','2.20 tCO2e'],
+      ['CH₄','Metano','Depósito de colas','8 kg','27.9','0.22 tCO2e'],
+      ['N₂O','Óxido nitroso','Voladura con explosivos','3.1 kg','273','0.85 tCO2e'],
+      ['HFCs','Hidrofluorocarbonos','Aire acondicionado de cabinas','0.1 kg','~1.400*','0.03 tCO2e'],
+      ['PFCs','Perfluorocarbonos','No detectado en tu rubro','0 kg','~7.000*','0 tCO2e'],
+      ['SF₆','Hexafluoruro de azufre','No detectado en tu rubro','0 kg','~25.200','0 tCO2e'],
+    ],
+  },
+  comercio: {
+    kpiTotal:18, kpiS1:4, kpiS2:12, kpiCov:90,
+    months:['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago'],
+    line:{ s1:[0.3,0.3,0.4,0.4,0.3,0.5,0.4,0.4], s2:[0.8,0.9,1.0,1.1,1.0,1.2,1.3,1.4], s3:[0.1,0.1,0.2,0.1,0.2,0.2,0.2,0.3] },
+    donut:{ labels:['Refrigeración','Electricidad','Residuos','Otros'], data:[45,35,12,8] },
+    facility:{ labels:['Local Centro'], data:[18] },
+    gas:[
+      ['CO₂','Dióxido de carbono','Electricidad del local','15 kg','1','0.015 tCO2e'],
+      ['CH₄','Metano','No relevante en tu rubro','0.5 kg','27.9','0.014 tCO2e'],
+      ['N₂O','Óxido nitroso','No relevante en tu rubro','0.05 kg','273','0.014 tCO2e'],
+      ['HFCs','Hidrofluorocarbonos','Heladeras/freezers del local','1.2 kg','~1.400*','1.68 tCO2e'],
+      ['PFCs','Perfluorocarbonos','No detectado en tu rubro','0 kg','~7.000*','0 tCO2e'],
+      ['SF₆','Hexafluoruro de azufre','No detectado en tu rubro','0 kg','~25.200','0 tCO2e'],
+    ],
+  },
+};
+function currentDataSet(){ return profileDataSets[currentProfile.sector] || profileDataSets.hidrocarburos; }
 
 function fillDemo(email, pass){
   document.getElementById('user').value = email;
@@ -1247,6 +1420,41 @@ function tryLogin(){
   if(demoAccounts[u] && p === 'Demo2026!'){
     currentProfile = demoAccounts[u];
     document.getElementById('login-screen').style.display = 'none';
+    runLoadingSequence();
+  } else {
+    const card = document.getElementById('loginCard');
+    document.getElementById('loginErr').style.display = 'block';
+    card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+  }
+}
+
+/* ---------- Secuencia de carga (Créditos de Carbono / GEI / Oxígeno) — 4 segundos ---------- */
+const loadingMessages = [
+  'Sincronizando datos GEI…',
+  'Verificando estándares GHG Protocol / ISO 14064-1…',
+  'Calculando balance de Créditos de Carbono…',
+  'Actualizando registro de Oxígeno y absorción…',
+  'Preparando tu panel…',
+];
+function runLoadingSequence(){
+  const screen = document.getElementById('loading-screen');
+  const statusEl = document.getElementById('loadingStatus');
+  const barEl = document.getElementById('loadingBarFill');
+  screen.style.display = 'flex';
+  barEl.style.width = '0%';
+
+  const totalMs = 4000;
+  const stepMs = totalMs / loadingMessages.length;
+  loadingMessages.forEach((msg, i)=>{
+    setTimeout(()=>{
+      statusEl.style.opacity = 0;
+      setTimeout(()=>{ statusEl.textContent = msg; statusEl.style.opacity = 1; }, 120);
+      barEl.style.width = `${Math.round(((i+1)/loadingMessages.length)*100)}%`;
+    }, i * stepMs);
+  });
+
+  setTimeout(()=>{
+    screen.style.display = 'none';
     document.getElementById('app').style.display = 'block';
     document.querySelector('.side-footer').innerHTML = `${currentProfile.name}<br>${currentProfile.role==='owner' ? 'Acceso dueño de la plataforma' : 'Plan Pyme · Período 2026'}
       <div class="partners-badges" style="justify-content:flex-start; margin-top:10px;">
@@ -1259,74 +1467,80 @@ function tryLogin(){
     } else {
       initDashboard();
     }
-  } else {
-    const card = document.getElementById('loginCard');
-    document.getElementById('loginErr').style.display = 'block';
-    card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
-  }
+  }, totalMs);
 }
 
-function fillCoverageBar(){
+function fillCoverageBar(pct){
   const bar = document.getElementById('covBar');
-  if(bar) bar.style.width = '74%';
+  if(bar) bar.style.width = (pct !== undefined ? pct : 74) + '%';
 }
 
 function animateCounter(id, target, suffix){
   const el = document.getElementById(id);
   let cur = 0;
-  const step = Math.max(1, target/40);
+  const step = Math.max(0.05, target/40);
   const iv = setInterval(()=>{
     cur += step;
     if(cur >= target){ cur = target; clearInterval(iv); }
-    el.textContent = Math.round(cur).toLocaleString('es-AR');
+    el.textContent = (target < 10 ? cur.toFixed(2) : Math.round(cur)).toLocaleString('es-AR');
   }, 20);
 }
 
-let charted = false;
 function initDashboard(){
-  animateCounter('kpiTotal', 4820);
-  animateCounter('kpiS1', 3110);
-  animateCounter('kpiS2', 1240);
-  animateCounter('kpiCov', 74);
-  fillCoverageBar();
+  const ds = currentDataSet();
+  animateCounter('kpiTotal', ds.kpiTotal);
+  animateCounter('kpiS1', ds.kpiS1);
+  animateCounter('kpiS2', ds.kpiS2);
+  animateCounter('kpiCov', ds.kpiCov);
+  fillCoverageBar(ds.kpiCov);
+  renderGasTable(ds);
   renderNotifPanel();
 
   // dos frames de animación garantizan que el navegador ya calculó el layout real antes de dibujar
   requestAnimationFrame(()=> requestAnimationFrame(loadCharts));
 }
 
+function renderGasTable(ds){
+  const tbody = document.getElementById('gasTableBody');
+  if(!tbody) return;
+  tbody.innerHTML = ds.gas.map(([symbol, name, origin, emitted, gwp, equiv]) =>
+    `<tr><td><b>${symbol}</b> — ${name}</td><td>${origin}</td><td>${emitted}</td><td class="mono">${gwp}</td><td class="mono">${equiv}</td></tr>`
+  ).join('');
+}
+
+const chartIconWarn = '<svg class="mgi mgi-warn" viewBox="0 0 24 24" width="13" height="13"><path d="M12 3.5l9.5 16.5H2.5L12 3.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><line x1="12" y1="10" x2="12" y2="14.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="17.3" r="1" fill="currentColor"/></svg>';
 function showChartError(canvasId, msg){
   const canvas = document.getElementById(canvasId);
   if(!canvas) return;
   const wrap = canvas.closest('.chart-wrap');
   if(wrap){
-    wrap.innerHTML = `<div style="display:flex; align-items:center; justify-content:center; height:100%; font-size:11.5px; color:var(--amber); text-align:center; padding:10px;">${msg}</div>`;
+    wrap.innerHTML = `<div style="display:flex; align-items:center; justify-content:center; height:100%; font-size:11.5px; color:var(--amber); text-align:center; padding:10px; gap:6px;">${msg}</div>`;
   }
 }
 
+let lineChartInstance, donutChartInstance, facilityChartInstance;
 function loadCharts(){
-  if(charted) return;
   if(typeof Chart === 'undefined'){
     // la librería no llegó a cargar (red/CDN bloqueado) — avisamos en vez de dejar el panel vacío
-    showChartError('lineChart', '⚠ No se pudo cargar la librería de gráficos (Chart.js) desde el CDN. Revisá la conexión o si algún bloqueador de anuncios está filtrando cdnjs.cloudflare.com.');
-    showChartError('donutChart', '⚠ Gráfico no disponible');
-    showChartError('facilityChart', '⚠ Gráfico no disponible');
+    showChartError('lineChart', chartIconWarn + ' No se pudo cargar la librería de gráficos (Chart.js) desde el CDN. Revisá la conexión o si algún bloqueador de anuncios está filtrando cdnjs.cloudflare.com.');
+    showChartError('donutChart', chartIconWarn + ' Gráfico no disponible');
+    showChartError('facilityChart', chartIconWarn + ' Gráfico no disponible');
     return;
   }
-  charted = true;
+  const ds = currentDataSet();
 
-  const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago'];
   try{
     const lc = document.getElementById('lineChart');
     lc.width = lc.parentElement.clientWidth; lc.height = lc.parentElement.clientHeight;
-    new Chart(lc, {
+    if(lineChartInstance) lineChartInstance.destroy();
+    lineChartInstance = new Chart(lc, {
       type:'line',
       data:{
-        labels:months,
+        labels: ds.months,
         datasets:[
-          { label:'Alcance 1', data:[320,340,360,410,430,470,510,530], borderColor:'#2ED69D', backgroundColor:'rgba(46,214,157,0.12)', tension:.35, fill:true, borderWidth:2, pointRadius:0 },
-          { label:'Alcance 2', data:[180,175,160,150,145,140,132,128], borderColor:'#8CA0FF', backgroundColor:'rgba(140,160,255,0.08)', tension:.35, fill:true, borderWidth:2, pointRadius:0 },
-          { label:'Alcance 3', data:[60,64,70,68,74,80,86,90], borderColor:'#E8A33D', backgroundColor:'rgba(232,163,61,0.08)', tension:.35, fill:true, borderWidth:2, pointRadius:0 },
+          { label:'Alcance 1', data:ds.line.s1, borderColor:'#2ED69D', backgroundColor:'rgba(46,214,157,0.12)', tension:.35, fill:true, borderWidth:2, pointRadius:0 },
+          { label:'Alcance 2', data:ds.line.s2, borderColor:'#8CA0FF', backgroundColor:'rgba(140,160,255,0.08)', tension:.35, fill:true, borderWidth:2, pointRadius:0 },
+          { label:'Alcance 3', data:ds.line.s3, borderColor:'#E8A33D', backgroundColor:'rgba(232,163,61,0.08)', tension:.35, fill:true, borderWidth:2, pointRadius:0 },
         ]
       },
       options:{
@@ -1339,16 +1553,17 @@ function loadCharts(){
         }
       }
     });
-  }catch(e){ console.error('Error en gráfico de línea:', e); showChartError('lineChart', '⚠ Error al dibujar este gráfico: '+e.message); }
+  }catch(e){ console.error('Error en gráfico de línea:', e); showChartError('lineChart', chartIconWarn + ' Error al dibujar este gráfico: '+e.message); }
 
   try{
     const dc = document.getElementById('donutChart');
     dc.width = dc.parentElement.clientWidth; dc.height = dc.parentElement.clientHeight;
-    new Chart(dc, {
+    if(donutChartInstance) donutChartInstance.destroy();
+    donutChartInstance = new Chart(dc, {
       type:'doughnut',
       data:{
-        labels:['Fugitivas/venteo','Combustión móvil','Electricidad','Viajes/otros'],
-        datasets:[{ data:[42,26,21,11], backgroundColor:['#2ED69D','#E8A33D','#8CA0FF','#5A6568'], borderWidth:0 }]
+        labels: ds.donut.labels,
+        datasets:[{ data:ds.donut.data, backgroundColor:['#2ED69D','#E8A33D','#8CA0FF','#5A6568'], borderWidth:0 }]
       },
       options:{
         responsive:true, maintainAspectRatio:false,
@@ -1357,16 +1572,17 @@ function loadCharts(){
         plugins:{ legend:{ display:false } }
       }
     });
-  }catch(e){ console.error('Error en gráfico donut:', e); showChartError('donutChart', '⚠ Error al dibujar este gráfico: '+e.message); }
+  }catch(e){ console.error('Error en gráfico donut:', e); showChartError('donutChart', chartIconWarn + ' Error al dibujar este gráfico: '+e.message); }
 
   try{
     const fc = document.getElementById('facilityChart');
     fc.width = fc.parentElement.clientWidth; fc.height = fc.parentElement.clientHeight;
-    new Chart(fc, {
+    if(facilityChartInstance) facilityChartInstance.destroy();
+    facilityChartInstance = new Chart(fc, {
       type:'bar',
       data:{
-        labels:['Loma Campana','Base Añelo','Ofic. Neuquén','Rincón Sauces'],
-        datasets:[{ data:[2140,980,210,1490], backgroundColor:['#2ED69D','#2ED69D','#8CA0FF','#E8A33D'], borderRadius:5, maxBarThickness:38 }]
+        labels: ds.facility.labels,
+        datasets:[{ data:ds.facility.data, backgroundColor:['#2ED69D','#2ED69D','#8CA0FF','#E8A33D'], borderRadius:5, maxBarThickness:38 }]
       },
       options:{
         responsive:true, maintainAspectRatio:false,
@@ -1378,7 +1594,7 @@ function loadCharts(){
         }
       }
     });
-  }catch(e){ console.error('Error en gráfico de instalaciones:', e); showChartError('facilityChart', '⚠ Error al dibujar este gráfico: '+e.message); }
+  }catch(e){ console.error('Error en gráfico de instalaciones:', e); showChartError('facilityChart', chartIconWarn + ' Error al dibujar este gráfico: '+e.message); }
 }
 
 document.getElementById('pass').addEventListener('keydown', e=>{ if(e.key==='Enter') tryLogin(); });
@@ -1488,6 +1704,101 @@ function downloadInventoryXLSX(){
   XLSX.writeFile(wb, 'inventario_detallado_huella_neuquen.xlsx');
 }
 
+/* ---------- Catálogo general de categorías GEI (cualquier cosa que se pueda cargar, no solo vehículos) ---------- */
+// factorPerUnit en kgCO2e por unidad — combinando ADEME Base Empreinte (bienes de consumo), DEFRA (energía/transporte) y USEEIO (comodín por gasto)
+const categoryCatalog = [
+  { id:'vehiculo',      label:'Vehículos / flota (combustión móvil)', aliases:['vehiculo','camioneta','camion','auto','flota','combustible movil'], scope:'Alcance 1', special:'vehicle' },
+  { id:'diesel_fijo',   label:'Combustión estacionaria — Diésel', aliases:['diesel fijo','generador','caldera diesel'], scope:'Alcance 1', unit:'litros', factorPerUnit:2.68, source:'DEFRA-2025' },
+  { id:'gas_natural',   label:'Gas natural (combustión estacionaria)', aliases:['gas natural','gas de red','calefaccion gas'], scope:'Alcance 1', unit:'m³', factorPerUnit:1.89, source:'US EPA' },
+  { id:'venteo',        label:'Venteo de gas', aliases:['venteo','gas venteado'], scope:'Alcance 1', unit:'m³', factorPerUnit:0.72, source:'US EPA' },
+  { id:'flaring',       label:'Flaring (quema en antorcha)', aliases:['flaring','antorcha','quema de gas'], scope:'Alcance 1', unit:'m³', factorPerUnit:0.63, source:'US EPA' },
+  { id:'refrigerantes', label:'Refrigerantes / HFCs (fugas de A/A)', aliases:['refrigerante','hfc','aire acondicionado','freon'], scope:'Alcance 1', unit:'kg de gas recargado', factorPerUnit:1430, source:'IPCC AR6 (HFC-134a ref.)' },
+  { id:'electricidad',  label:'Electricidad de red', aliases:['electricidad','luz','energia electrica','kwh'], scope:'Alcance 2', unit:'kWh', factorPerUnit:0.32, source:'Grid mix Argentina' },
+  { id:'agua',          label:'Consumo de agua de red', aliases:['agua','agua potable'], scope:'Alcance 3', unit:'m³', factorPerUnit:0.35, source:'DEFRA-2025' },
+  { id:'residuos',      label:'Residuos generados (a relleno sanitario)', aliases:['residuos','basura','desechos'], scope:'Alcance 3', unit:'kg', factorPerUnit:0.45, source:'US EPA' },
+  { id:'viaje_avion',   label:'Viajes de negocio — avión', aliases:['viaje avion','vuelo','pasaje aereo'], scope:'Alcance 3', unit:'km recorridos', factorPerUnit:0.15, source:'DEFRA-2025' },
+  { id:'viaje_auto',    label:'Viajes de negocio — auto/taxi', aliases:['viaje auto','taxi','remis'], scope:'Alcance 3', unit:'km recorridos', factorPerUnit:0.17, source:'DEFRA-2025' },
+  { id:'ropa',          label:'Ropa / indumentaria (bien comprado)', aliases:['ropa','indumentaria','textil','uniformes'], scope:'Alcance 3', unit:'kg', factorPerUnit:5.5, source:'ADEME Base Empreinte' },
+  { id:'papel',         label:'Papel / insumos de oficina', aliases:['papel','oficina','impresion'], scope:'Alcance 3', unit:'kg', factorPerUnit:0.94, source:'ADEME Base Empreinte' },
+  { id:'electronica',   label:'Equipos electrónicos comprados', aliases:['electronica','computadora','notebook','celular'], scope:'Alcance 3', unit:'unidad', factorPerUnit:180, source:'ADEME Base Empreinte' },
+  { id:'alimentos',     label:'Alimentos / catering', aliases:['alimentos','comida','catering'], scope:'Alcance 3', unit:'kg', factorPerUnit:2.5, source:'ADEME Base Empreinte' },
+  { id:'otros_gasto',   label:'Otro bien o servicio comprado (por gasto)', aliases:['otro','servicio','gasto'], scope:'Alcance 3', unit:'miles de ARS gastados', factorPerUnit:0.6, source:'USEEIO (spend-based)' },
+];
+
+let selectedCategory = null;
+function searchCategory(){
+  const q = document.getElementById('catSearchInput').value.trim().toLowerCase();
+  const box = document.getElementById('catSuggestions');
+  if(q.length === 0){ box.style.display = 'none'; return; }
+  const matches = categoryCatalog.filter(c =>
+    c.label.toLowerCase().includes(q) || c.aliases.some(a => a.includes(q) || q.includes(a))
+  );
+  if(matches.length === 0){
+    box.innerHTML = `<div class="cat-suggestion" style="cursor:default;"><span class="cs-name" style="color:var(--muted);">Sin coincidencias exactas — elegí "Otro bien o servicio comprado" para cargarlo igual por monto gastado.</span></div>`;
+    box.style.display = 'block';
+    return;
+  }
+  box.innerHTML = matches.map(c => `
+    <div class="cat-suggestion" onclick="selectCategory('${c.id}')">
+      <div><div class="cs-name">${c.label}</div><div class="cs-meta">${c.special ? 'Formulario específico' : `Unidad: ${c.unit} · Fuente: ${c.source}`}</div></div>
+      <span class="cs-scope">${c.scope}</span>
+    </div>`).join('');
+  box.style.display = 'block';
+}
+function selectCategory(id){
+  selectedCategory = categoryCatalog.find(c => c.id === id);
+  document.getElementById('catSearchInput').value = selectedCategory.label;
+  document.getElementById('catSuggestions').style.display = 'none';
+
+  if(selectedCategory.special === 'vehicle'){
+    document.getElementById('genericForm').style.display = 'none';
+    document.getElementById('vehicleForm').style.display = 'block';
+    document.getElementById('vehicleForm').scrollIntoView({behavior:'smooth', block:'center'});
+  } else {
+    document.getElementById('vehicleForm').style.display = 'none';
+    document.getElementById('genericForm').style.display = 'block';
+    document.getElementById('genericFormTitle').textContent = selectedCategory.label;
+    document.getElementById('genericFormSub').textContent = `${selectedCategory.scope} · Fuente del factor: ${selectedCategory.source}`;
+    document.getElementById('genericQtyLabel').textContent = `Cantidad (${selectedCategory.unit})`;
+    document.getElementById('genericQty').value = '';
+    updateGenericFactor();
+    document.getElementById('genericForm').scrollIntoView({behavior:'smooth', block:'center'});
+  }
+}
+function updateGenericFactor(){
+  if(!selectedCategory) return;
+  const qty = parseFloat(document.getElementById('genericQty').value) || 0;
+  const tco2e = (qty * selectedCategory.factorPerUnit) / 1000;
+  document.getElementById('genericFactorText').textContent = `${selectedCategory.factorPerUnit} kgCO2e por ${selectedCategory.unit.replace(/s$/,'')} — fuente: ${selectedCategory.source}`;
+  document.getElementById('genericResult').textContent = qty > 0 ? `${tco2e.toFixed(3)} tCO2e` : '— tCO2e';
+}
+function addGenericData(){
+  if(!selectedCategory) return;
+  const qty = parseFloat(document.getElementById('genericQty').value) || 0;
+  const facility = document.getElementById('genericFacility').value.trim() || 'Sin especificar';
+
+  const maxRazonable = { 'Alcance 1':500000, 'Alcance 2':2000000, 'Alcance 3':100000 }[selectedCategory.scope] || 100000;
+  if(qty <= 0 || qty > maxRazonable){
+    moderationLog.unshift({ msg:`Dato rechazado: ${qty.toLocaleString('es-AR')} ${selectedCategory.unit} para "${selectedCategory.label}" está fuera de un rango razonable.`, date:new Date().toLocaleString('es-AR') });
+    renderModerationLog();
+    pushNotification(`${categoryCatalog.length ? '' : ''}Se rechazó un dato de "${selectedCategory.label}" fuera de rango razonable (validación automática).`);
+    showToast('<svg class="mgi mgi-warn" viewBox="0 0 24 24" width="13" height="13"><path d="M12 3.5l9.5 16.5H2.5L12 3.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><line x1="12" y1="10" x2="12" y2="14.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="17.3" r="1" fill="currentColor"/></svg> Este dato no pasó la validación automática y no fue cargado. No bloqueamos tu cuenta — solo revisá el valor y volvé a intentar.', 'warn');
+    return;
+  }
+
+  const tbody = document.getElementById('dataTableBody');
+  const row = document.createElement('tr');
+  row.innerHTML = `<td>${facility}</td><td>${selectedCategory.scope}</td><td>${selectedCategory.label}</td><td>${qty.toLocaleString('es-AR')} ${selectedCategory.unit}</td><td>Ago 2026</td><td><span class="badge estimated">Estimado</span></td>`;
+  tbody.prepend(row);
+  document.getElementById('genericQty').value = '';
+  updateGenericFactor();
+  showToast('<svg class="mgi mgi-check" viewBox="0 0 24 24" width="13" height="13"><path d="M4 12.5l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Dato cargado y sumado a tu inventario del período.', 'ok');
+}
+document.addEventListener('click', (e)=>{
+  const wrap = document.getElementById('categorySearchPanel');
+  if(wrap && !wrap.contains(e.target)){ const s = document.getElementById('catSuggestions'); if(s) s.style.display = 'none'; }
+});
+
 /* ---------- Autodetección de emisiones por vehículo (marca/modelo/combustible) ---------- */
 // Factores ilustrativos (kg CO2e / litro) — en producción se reemplazan por la base real (DEFRA/US EPA por tipo de motor)
 const vehicleModels = {
@@ -1537,8 +1848,8 @@ function addVehicleData(){
   if(liters <= 0 || liters > maxRazonable){
     moderationLog.unshift({ msg:`Dato rechazado: ${liters.toLocaleString('es-AR')} L declarados para ${mode==='flota' ? count+' vehículo(s)' : '1 vehículo'} está fuera de un rango razonable.`, date:new Date().toLocaleString('es-AR') });
     renderModerationLog();
-    pushNotification('⚠ Se rechazó un dato de vehículo fuera de rango razonable (validación automática).');
-    showToast('⚠ Este dato no pasó la validación automática y no fue cargado. No bloqueamos tu cuenta — solo revisá el valor y volvé a intentar.', 'warn');
+    pushNotification('<svg class=&quot;mgi mgi-warn&quot; viewBox=&quot;0 0 24 24&quot; width=&quot;13&quot; height=&quot;13&quot;><path d=&quot;M12 3.5l9.5 16.5H2.5L12 3.5z&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.6&quot; stroke-linejoin=&quot;round&quot;/><line x1=&quot;12&quot; y1=&quot;10&quot; x2=&quot;12&quot; y2=&quot;14.5&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.6&quot; stroke-linecap=&quot;round&quot;/><circle cx=&quot;12&quot; cy=&quot;17.3&quot; r=&quot;1&quot; fill=&quot;currentColor&quot;/></svg> Se rechazó un dato de vehículo fuera de rango razonable (validación automática).');
+    showToast('<svg class=&quot;mgi mgi-warn&quot; viewBox=&quot;0 0 24 24&quot; width=&quot;13&quot; height=&quot;13&quot;><path d=&quot;M12 3.5l9.5 16.5H2.5L12 3.5z&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.6&quot; stroke-linejoin=&quot;round&quot;/><line x1=&quot;12&quot; y1=&quot;10&quot; x2=&quot;12&quot; y2=&quot;14.5&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.6&quot; stroke-linecap=&quot;round&quot;/><circle cx=&quot;12&quot; cy=&quot;17.3&quot; r=&quot;1&quot; fill=&quot;currentColor&quot;/></svg> Este dato no pasó la validación automática y no fue cargado. No bloqueamos tu cuenta — solo revisá el valor y volvé a intentar.', 'warn');
     return;
   }
 
@@ -1549,7 +1860,7 @@ function addVehicleData(){
   tbody.prepend(row);
   document.getElementById('vhLiters').value = '';
   updateVehicleFactor();
-  showToast('✓ Dato cargado y sumado a tu inventario del período.', 'ok');
+  showToast('<svg class=&quot;mgi mgi-check&quot; viewBox=&quot;0 0 24 24&quot; width=&quot;13&quot; height=&quot;13&quot;><path d=&quot;M4 12.5l5 5L20 6&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.3&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/></svg> Dato cargado y sumado a tu inventario del período.', 'ok');
 }
 
 function renderModerationLog(){
@@ -1566,9 +1877,11 @@ function renderModerationLog(){
 function toggleSidebar(force){
   const sb = document.getElementById('appSidebar');
   const scrim = document.getElementById('sidebarScrim');
+  const btn = document.getElementById('hamburgerBtn');
   const open = force !== undefined ? force : !sb.classList.contains('open');
   sb.classList.toggle('open', open);
   scrim.classList.toggle('open', open);
+  if(btn) btn.classList.toggle('open', open);
 }
 
 /* ---------- Centro de notificaciones ---------- */
@@ -1620,7 +1933,7 @@ function showToast(message, type){
   const el = document.createElement('div');
   el.className = 'toast-msg';
   el.style.borderColor = type === 'warn' ? 'rgba(232,163,61,0.4)' : 'rgba(46,214,157,0.4)';
-  el.textContent = message;
+  el.innerHTML = message;
   document.body.appendChild(el);
   setTimeout(()=>{ el.classList.add('toast-out'); setTimeout(()=>el.remove(), 400); }, 4200);
 }
@@ -1777,7 +2090,7 @@ function createCompany(){
   platformUsers.push({ user:email, company:name, role:'Admin empresa', pass, visible:true });
 
   document.getElementById('createCoMsg').style.display = 'block';
-  document.getElementById('createCoMsg').innerHTML = `✓ Empresa "${name}" creada. Se envió la contraseña temporal a ${email}.`;
+  document.getElementById('createCoMsg').innerHTML = `<svg class=&quot;mgi mgi-check&quot; viewBox=&quot;0 0 24 24&quot; width=&quot;13&quot; height=&quot;13&quot;><path d=&quot;M4 12.5l5 5L20 6&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.3&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/></svg> Empresa &quot;${name}&quot; creada. Se envió la contraseña temporal a ${email}.`;
   document.getElementById('newCoName').value = ''; document.getElementById('newCoEmail').value = '';
 
   renderUsersTable();
@@ -1977,7 +2290,7 @@ function renderOffsetView(){
     </tr>`).join('');
 
   const totalOffset = offsetPurchases.reduce((s,o)=>s+o.qty, 0);
-  const gross = 4820;
+  const gross = currentDataSet().kpiTotal;
   const pct = Math.min(100, Math.round((totalOffset/gross)*100));
   const pctEl = document.getElementById('netZeroPct');
   const barEl = document.getElementById('netZeroBar');
