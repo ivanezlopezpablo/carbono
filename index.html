@@ -177,7 +177,16 @@
   .partner-badge{
     font-size:10px; padding:5px 10px; border-radius:6px; color:var(--muted);
     border:1px solid var(--line); background:rgba(255,255,255,0.02); letter-spacing:.01em;
+    display:inline-flex; align-items:center; gap:6px;
   }
+  .partner-badge .pb-icon{
+    width:16px; height:16px; border-radius:4px; flex-shrink:0;
+    background:linear-gradient(135deg, rgba(46,214,157,0.35), rgba(46,214,157,0.08));
+    border:1px solid rgba(46,214,157,0.3);
+    display:flex; align-items:center; justify-content:center;
+    font-size:8.5px; font-weight:700; color:var(--teal); font-family:'Space Grotesk';
+  }
+  .partner-badge .pb-name{ color:var(--text); font-weight:600; }
 
   /* Modal de confirmación / reconfirmación */
   .confirm-overlay{
@@ -199,6 +208,18 @@
   .confirm-msg{ font-size:13px; color:var(--text); line-height:1.5; margin-bottom:20px; }
   .confirm-actions{ display:flex; gap:10px; justify-content:center; }
   .confirm-yes{ background:var(--teal); }
+
+  /* Toast de notificación (moderación de datos, avisos pasivos) */
+  .toast-msg{
+    position:fixed; top:20px; right:20px; z-index:60; max-width:340px;
+    background:rgba(23,36,32,0.85); backdrop-filter:blur(16px); border:1px solid var(--line);
+    border-radius:10px; padding:13px 16px; font-size:12.5px; color:var(--text); line-height:1.5;
+    box-shadow:0 8px 30px rgba(0,0,0,0.35);
+    animation: toastIn .3s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes toastIn{ from{opacity:0; transform:translateX(20px);} to{opacity:1; transform:translateX(0);} }
+  .toast-out{ animation: toastOut .4s ease both; }
+  @keyframes toastOut{ to{opacity:0; transform:translateX(20px);} }
   .shake{ animation: shake .4s; }
   @keyframes shake{ 10%,90%{transform:translateX(-2px);} 20%,80%{transform:translateX(4px);} 30%,50%,70%{transform:translateX(-6px);} 40%,60%{transform:translateX(6px);} }
   .err{ color:var(--danger); font-size:12px; margin:-8px 0 14px; display:none; }
@@ -430,13 +451,13 @@
     <div class="partners-strip">
       <div class="partners-title">Estándares y marcos que reconocemos</div>
       <div class="partners-badges">
-        <span class="partner-badge">GHG Protocol</span>
-        <span class="partner-badge">ISO 14064-1</span>
-        <span class="partner-badge">Verra (VCS)</span>
-        <span class="partner-badge">Gold Standard</span>
-        <span class="partner-badge">ACR</span>
-        <span class="partner-badge">Climate Action Reserve</span>
-        <span class="partner-badge">ICVCM</span>
+        <span class="partner-badge"><span class="pb-icon">GHG</span><span class="pb-name">GHG Protocol</span></span>
+        <span class="partner-badge"><span class="pb-icon">ISO</span><span class="pb-name">ISO 14064-1</span></span>
+        <span class="partner-badge"><span class="pb-icon">V</span><span class="pb-name">Verra (VCS)</span></span>
+        <span class="partner-badge"><span class="pb-icon">GS</span><span class="pb-name">Gold Standard</span></span>
+        <span class="partner-badge"><span class="pb-icon">A</span><span class="pb-name">ACR</span></span>
+        <span class="partner-badge"><span class="pb-icon">CAR</span><span class="pb-name">Climate Action Reserve</span></span>
+        <span class="partner-badge"><span class="pb-icon">IC</span><span class="pb-name">ICVCM</span></span>
       </div>
     </div>
   </div>
@@ -450,6 +471,7 @@
         <div class="brand-mark" style="width:28px;height:28px;font-size:12px;">HN</div>
         <div class="brand-name" style="font-size:14.5px;">Huella Neuquén</div>
       </div>
+      <div class="nav-item" onclick="startTour()" style="color:var(--teal); border:1px dashed rgba(46,214,157,0.35); margin-bottom:10px;"><span class="nav-dot"></span> 🧭 Recorrido guiado</div>
       <div class="nav-item active" data-view="general" onclick="showView('general', this)"><span class="nav-dot"></span> Panel general</div>
       <div class="nav-item" data-view="data" onclick="showView('data', this)"><span class="nav-dot"></span> Datos de actividad</div>
       <div class="nav-item" data-view="map" onclick="showView('map', this)"><span class="nav-dot"></span> Mapa de calor</div>
@@ -465,9 +487,9 @@
       <div class="side-footer">
         YPF Satélite Neuquén S.A.<br>Plan Pyme · Período 2026
         <div class="partners-badges" style="justify-content:flex-start; margin-top:10px;">
-          <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;">Verra</span>
-          <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;">Gold Standard</span>
-          <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;">ISO 14064</span>
+          <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;"><span class="pb-icon" style="width:12px;height:12px;font-size:6.5px;">V</span><span class="pb-name">Verra</span></span>
+          <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;"><span class="pb-icon" style="width:12px;height:12px;font-size:6.5px;">GS</span><span class="pb-name">Gold Standard</span></span>
+          <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;"><span class="pb-icon" style="width:12px;height:12px;font-size:6.5px;">ISO</span><span class="pb-name">ISO 14064</span></span>
         </div>
       </div>
     </div>
@@ -540,6 +562,23 @@
         <h3>Emisiones por instalación</h3>
         <div class="sub">tCO2e acumuladas del período — mismas instalaciones del mapa de calor</div>
         <div class="chart-wrap" style="height:190px;"><canvas id="facilityChart"></canvas></div>
+      </div>
+
+      <div class="panel" style="animation-delay:.44s; margin-bottom:16px; opacity:1;">
+        <h3 style="margin-bottom:2px;">Composición por gas de efecto invernadero</h3>
+        <div class="sub" style="margin-bottom:14px;">No todos los GEI pesan igual — cada uno se convierte a tCO2e según su Potencial de Calentamiento Global (GWP)</div>
+        <table>
+          <thead><tr><th>Gas</th><th>Origen principal en tu empresa</th><th>Emitido</th><th>GWP (AR6)</th><th>Equivalente</th></tr></thead>
+          <tbody>
+            <tr><td><b>CO₂</b> — Dióxido de carbono</td><td>Combustión de diésel/gas natural</td><td>3.180 kg</td><td class="mono">1</td><td class="mono">3.18 tCO2e</td></tr>
+            <tr><td><b>CH₄</b> — Metano</td><td>Venteo y flaring de gas</td><td>42 kg</td><td class="mono">27.9</td><td class="mono">1.17 tCO2e</td></tr>
+            <tr><td><b>N₂O</b> — Óxido nitroso</td><td>Combustión estacionaria</td><td>1.4 kg</td><td class="mono">273</td><td class="mono">0.38 tCO2e</td></tr>
+            <tr><td><b>HFCs</b> — Hidrofluorocarbonos</td><td>Fugas de refrigeración/aire acondicionado</td><td>0.3 kg</td><td class="mono">~1.400*</td><td class="mono">0.09 tCO2e</td></tr>
+            <tr><td><b>PFCs</b> — Perfluorocarbonos</td><td>No detectado en tu rubro</td><td>0 kg</td><td class="mono">~7.000*</td><td class="mono">0 tCO2e</td></tr>
+            <tr><td><b>SF₆</b> — Hexafluoruro de azufre</td><td>No detectado en tu rubro</td><td>0 kg</td><td class="mono">~25.200</td><td class="mono">0 tCO2e</td></tr>
+          </tbody>
+        </table>
+        <div style="font-size:10.5px; color:var(--muted); margin-top:10px;">* El GWP de HFCs y PFCs varía según la sustancia específica (ej. HFC-134a vs HFC-32) — se muestra un valor de referencia; en producción se calcula por sustancia declarada.</div>
       </div>
 
       <div class="grid-2">
@@ -695,6 +734,9 @@
         <h3 style="margin-bottom:14px;">Dar de alta una nueva empresa</h3>
         <div class="field-row">
           <div class="field"><label>Nombre de la empresa</label><input type="text" id="newCoName" placeholder="Ej. Petrolera del Sur S.A."></div>
+          <div class="field"><label>CUIT</label><input type="text" id="newCoCuit" placeholder="30-XXXXXXXX-X"></div>
+        </div>
+        <div class="field-row">
           <div class="field"><label>Email del administrador</label><input type="text" id="newCoEmail" placeholder="admin@empresa.com"></div>
         </div>
         <div class="field-row">
@@ -805,11 +847,60 @@
     <div id="view-data" style="display:none;">
       <div class="topbar">
         <div><h1 class="display">Datos de actividad</h1><p class="lead">Cargá consumos por instalación — el formulario se adapta al rubro de tu empresa</p></div>
-        <button class="btn" style="width:auto; padding:11px 18px;" onclick="alert('En producción esto abre el formulario de carga real, conectado a Supabase.')">+ Nuevo dato</button>
+        <div style="display:flex; gap:10px;">
+          <div class="search-bar" style="margin-bottom:0;"><select id="dataPeriodFilter" onchange="filterDataTable()" style="background:var(--surface-2); border:1px solid var(--line); color:var(--text); border-radius:8px; padding:9px 12px; font-size:12.5px;"><option value="todos">Todo el período</option><option value="diario">Hoy</option><option value="semanal">Esta semana</option><option value="mensual">Este mes</option><option value="anual">Este año</option></select></div>
+          <button class="btn" style="width:auto; padding:11px 18px;" onclick="document.getElementById('vehicleForm').scrollIntoView({behavior:'smooth'})">+ Nuevo dato</button>
+        </div>
       </div>
+
+      <div class="panel" style="margin-bottom:16px; opacity:1; animation:none; border-color:rgba(232,163,61,0.3);">
+        <h3 style="margin-bottom:2px;">⚠ Obligatorio para tu rubro</h3>
+        <div class="sub" style="margin-bottom:10px;">Hidrocarburos — extracción: te falta cargar <b style="color:var(--text)">venteo/flaring del mes en curso</b> y <b style="color:var(--text)">combustión móvil de flota</b>. Estos datos son obligatorios para poder solicitar tu próxima auditoría.</div>
+        <div class="sub" style="color:var(--muted);">💡 Sugerido (no obligatorio, pero mejora tu cobertura de datos primarios): viajes de negocio del equipo comercial, residuos de oficina.</div>
+      </div>
+
+      <!-- Carga de vehículos con auto-detección de factor de emisión -->
+      <div class="panel" id="vehicleForm" style="margin-bottom:16px; opacity:1; animation:none;">
+        <h3 style="margin-bottom:2px;">Combustión móvil — cargar vehículo</h3>
+        <div class="sub" style="margin-bottom:14px;">Elegí marca, modelo y combustible — el sistema calcula el factor de emisión solo. Podés cargar un vehículo individual o el consumo total de la flota.</div>
+        <div class="field-row">
+          <div class="field"><label>Tipo de carga</label>
+            <select id="vhMode" onchange="toggleVehicleMode()"><option value="individual">Vehículo individual</option><option value="flota">Total de flota</option></select>
+          </div>
+          <div class="field" id="vhCountField" style="display:none;"><label>Cantidad de vehículos en la flota</label><input type="number" id="vhCount" placeholder="Ej. 12"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Marca</label>
+            <select id="vhBrand" onchange="updateVehicleModels()">
+              <option value="Ford">Ford</option><option value="Toyota">Toyota</option><option value="Volkswagen">Volkswagen</option>
+              <option value="Iveco">Iveco</option><option value="Scania">Scania</option><option value="Mercedes-Benz">Mercedes-Benz</option>
+            </select>
+          </div>
+          <div class="field"><label>Modelo</label><select id="vhModel" onchange="updateVehicleFactor()"></select></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Combustible</label>
+            <select id="vhFuel" onchange="updateVehicleFactor()"><option value="diesel">Diésel</option><option value="nafta">Nafta</option></select>
+          </div>
+          <div class="field"><label>Litros consumidos (período)</label><input type="number" id="vhLiters" oninput="updateVehicleFactor()" placeholder="Ej. 450"></div>
+        </div>
+        <div class="report-card" style="background:var(--teal-soft); border-color:rgba(46,214,157,0.3); margin-top:4px;">
+          <div>
+            <div class="rtitle">Factor de emisión detectado automáticamente</div>
+            <div class="rsub" id="vhFactorText">Elegí marca, modelo y litros para calcular</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px; color:var(--muted);">Emisión estimada</div>
+            <div class="mono" id="vhResult" style="font-size:18px; font-weight:600; color:var(--teal);">— tCO2e</div>
+          </div>
+        </div>
+        <button class="btn" style="width:auto; padding:11px 20px; margin-top:14px;" onclick="confirmAction('¿Confirmás cargar este dato de actividad? Va a sumar a tu inventario del período y quedar trazado para auditoría.', addVehicleData)">Guardar dato de vehículo</button>
+        <div id="moderationList" style="display:none; margin-top:14px; padding-top:12px; border-top:1px solid var(--line);"></div>
+      </div>
+
       <div class="panel table-panel" style="opacity:1; animation:none;">
         <h3>Últimos registros</h3>
-        <div class="sub">Alcance, categoría, cantidad y calidad del dato</div>
+        <div class="sub">Alcance, categoría, cantidad y calidad del dato — trazable a su comprobante</div>
         <div class="search-bar"><input type="text" id="dataSearch" placeholder="Buscar por instalación o categoría…" oninput="filterDataTable()"></div>
         <table>
           <thead><tr><th>Instalación</th><th>Alcance</th><th>Categoría</th><th>Cantidad</th><th>Período</th><th>Calidad</th></tr></thead>
@@ -823,6 +914,7 @@
         </table>
       </div>
     </div>
+
 
     <!-- ===== EVIDENCIAS ===== -->
     <div id="view-evidence" style="display:none;">
@@ -915,8 +1007,19 @@
       <div class="topbar">
         <div><h1 class="display">Configuración</h1><p class="lead">Datos de la empresa, ubicación y rubro</p></div>
       </div>
+      <div class="panel" style="opacity:1; animation:none; margin-bottom:16px;">
+        <h3 style="margin-bottom:14px;">Datos formales de la empresa</h3>
+        <div class="field-row">
+          <div class="field"><label>Razón social</label><input type="text" id="cfgRazonSocial" value="YPF Satélite Neuquén S.A."></div>
+          <div class="field"><label>CUIT</label><input type="text" id="cfgCuit" placeholder="30-XXXXXXXX-X" value="30-71234567-8"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Domicilio fiscal</label><input type="text" id="cfgDomicilio" placeholder="Calle, número, localidad"></div>
+          <div class="field"><label>Persona responsable (contacto)</label><input type="text" id="cfgContacto" placeholder="Nombre y apellido"></div>
+        </div>
+      </div>
       <div class="panel" style="opacity:1; animation:none;">
-        <h3 style="margin-bottom:14px;">Datos de la empresa</h3>
+        <h3 style="margin-bottom:14px;">Ubicación y rubro</h3>
         <div class="field-row">
           <div class="field"><label>País</label>
             <select id="cfgCountry" onchange="updateProvinces()"><option value="AR">Argentina</option><option value="CL">Chile</option><option value="UY">Uruguay</option></select>
@@ -939,7 +1042,7 @@
             <select><option>Plan Pyme</option><option>Plan Básico</option><option>Plan Auditoría continua</option></select>
           </div>
         </div>
-        <button class="btn" style="width:auto; padding:11px 20px;" onclick="alert('En producción esto guarda los cambios en Supabase.')">Guardar cambios</button>
+        <button class="btn" style="width:auto; padding:11px 20px;" onclick="confirmAction('¿Confirmás guardar los cambios en los datos de tu empresa?', ()=>alert('Guardado (demo).'))">Guardar cambios</button>
       </div>
     </div>
 
@@ -1099,9 +1202,9 @@ function tryLogin(){
     document.getElementById('app').style.display = 'block';
     document.querySelector('.side-footer').innerHTML = `${currentProfile.name}<br>${currentProfile.role==='owner' ? 'Acceso dueño de la plataforma' : 'Plan Pyme · Período 2026'}
       <div class="partners-badges" style="justify-content:flex-start; margin-top:10px;">
-        <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;">Verra</span>
-        <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;">Gold Standard</span>
-        <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;">ISO 14064</span>
+        <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;"><span class="pb-icon" style="width:12px;height:12px;font-size:6.5px;">V</span><span class="pb-name">Verra</span></span>
+        <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;"><span class="pb-icon" style="width:12px;height:12px;font-size:6.5px;">GS</span><span class="pb-name">Gold Standard</span></span>
+        <span class="partner-badge" style="font-size:8.5px; padding:3px 7px;"><span class="pb-icon" style="width:12px;height:12px;font-size:6.5px;">ISO</span><span class="pb-name">ISO 14064</span></span>
       </div>`;
     if(currentProfile.role === 'owner'){
       showView('owner', document.querySelector('[data-view="owner"]'));
@@ -1249,6 +1352,7 @@ function showView(name, el){
   if(name === 'config'){ updateProvinces(); }
   if(name === 'owner'){ initOwnerView(); }
   if(name === 'offset'){ renderOffsetView(); }
+  if(name === 'data'){ setTimeout(updateVehicleModels, 20); }
   if(name === 'general'){ setTimeout(()=>{ fillCoverageBar(); if(window.Chart){ Object.values(Chart.instances||{}).forEach(c=>c.resize()); } }, 120); }
 }
 
@@ -1335,11 +1439,129 @@ function downloadInventoryXLSX(){
   XLSX.writeFile(wb, 'inventario_detallado_huella_neuquen.xlsx');
 }
 
+/* ---------- Autodetección de emisiones por vehículo (marca/modelo/combustible) ---------- */
+// Factores ilustrativos (kg CO2e / litro) — en producción se reemplazan por la base real (DEFRA/US EPA por tipo de motor)
+const vehicleModels = {
+  Ford:        { diesel:['Ranger','F-4000','Cargo 1723'], nafta:['Ranger XLS Nafta'] },
+  Toyota:      { diesel:['Hilux','Hilux SW4'],              nafta:['Hilux Nafta'] },
+  Volkswagen:  { diesel:['Amarok','Constellation'],         nafta:['Amarok Nafta'] },
+  Iveco:       { diesel:['Daily','Tector','Stralis'],        nafta:[] },
+  Scania:      { diesel:['R450','G410'],                     nafta:[] },
+  'Mercedes-Benz': { diesel:['Actros','Atego','Sprinter'],   nafta:[] },
+};
+const fuelFactorKgPerLiter = { diesel:2.68, nafta:2.31 }; // kg CO2e / litro (DEFRA-style, ilustrativo)
+
+function toggleVehicleMode(){
+  document.getElementById('vhCountField').style.display = document.getElementById('vhMode').value === 'flota' ? 'block' : 'none';
+  updateVehicleFactor();
+}
+function updateVehicleModels(){
+  const brand = document.getElementById('vhBrand').value;
+  const fuel = document.getElementById('vhFuel').value;
+  const modelSel = document.getElementById('vhModel');
+  const models = (vehicleModels[brand] && vehicleModels[brand][fuel]) || [];
+  modelSel.innerHTML = models.length ? models.map(m=>`<option>${m}</option>`).join('') : '<option>— sin modelos diésel/nafta para esta marca —</option>';
+  updateVehicleFactor();
+}
+function updateVehicleFactor(){
+  const fuel = document.getElementById('vhFuel').value;
+  const liters = parseFloat(document.getElementById('vhLiters').value) || 0;
+  const factor = fuelFactorKgPerLiter[fuel];
+  const mode = document.getElementById('vhMode').value;
+  const count = mode === 'flota' ? (parseFloat(document.getElementById('vhCount').value)||1) : 1;
+  const totalKg = liters * factor * (mode==='flota' ? 1 : 1); // en flota, "litros" ya se carga como total consumido
+  const tco2e = totalKg / 1000;
+  document.getElementById('vhFactorText').textContent = `${factor} kgCO2e/litro (${fuel === 'diesel' ? 'Diésel' : 'Nafta'}) — fuente: base de factores por tipo de combustible`;
+  document.getElementById('vhResult').textContent = liters > 0 ? `${tco2e.toFixed(2)} tCO2e` : '— tCO2e';
+}
+const moderationLog = [];
+function addVehicleData(){
+  const brand = document.getElementById('vhBrand').value;
+  const model = document.getElementById('vhModel').value;
+  const fuel = document.getElementById('vhFuel').value === 'diesel' ? 'Diésel' : 'Nafta';
+  const mode = document.getElementById('vhMode').value;
+  const liters = parseFloat(document.getElementById('vhLiters').value) || 0;
+  const count = mode === 'flota' ? (parseFloat(document.getElementById('vhCount').value)||1) : 1;
+
+  // Validación automática de sentido común (esto es lo que evita cargar "boludeces")
+  const maxRazonable = 22000 * count; // litros de combustible razonables por vehículo en un período
+  if(liters <= 0 || liters > maxRazonable){
+    moderationLog.unshift({ msg:`Dato rechazado: ${liters.toLocaleString('es-AR')} L declarados para ${mode==='flota' ? count+' vehículo(s)' : '1 vehículo'} está fuera de un rango razonable.`, date:new Date().toLocaleString('es-AR') });
+    renderModerationLog();
+    showToast('⚠ Este dato no pasó la validación automática y no fue cargado. No bloqueamos tu cuenta — solo revisá el valor y volvé a intentar.', 'warn');
+    return;
+  }
+
+  const label = mode === 'flota' ? `Flota (${count} veh.) ${brand}` : `${brand} ${model}`;
+  const tbody = document.getElementById('dataTableBody');
+  const row = document.createElement('tr');
+  row.innerHTML = `<td>${label}</td><td>Alcance 1</td><td>Combustión móvil (${fuel})</td><td>${liters} L</td><td>Ago 2026</td><td><span class="badge estimated">Estimado</span></td>`;
+  tbody.prepend(row);
+  document.getElementById('vhLiters').value = '';
+  updateVehicleFactor();
+  showToast('✓ Dato cargado y sumado a tu inventario del período.', 'ok');
+}
+
+function renderModerationLog(){
+  const box = document.getElementById('moderationList');
+  if(!box) return;
+  if(moderationLog.length === 0){ box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  box.innerHTML = `<div style="font-size:11px; color:var(--amber); margin-bottom:6px;">Avisos de validación automática (no bloquean tu cuenta)</div>` +
+    moderationLog.slice(0,3).map(m => `<div style="font-size:11.5px; color:var(--muted); padding:4px 0;">• ${m.msg} <span class="mono" style="font-size:10px;">(${m.date})</span></div>`).join('');
+}
+
+/* ---------- Toast de notificación (distinto del modal — no pide decisión) ---------- */
+function showToast(message, type){
+  const el = document.createElement('div');
+  el.className = 'toast-msg';
+  el.style.borderColor = type === 'warn' ? 'rgba(232,163,61,0.4)' : 'rgba(46,214,157,0.4)';
+  el.textContent = message;
+  document.body.appendChild(el);
+  setTimeout(()=>{ el.classList.add('toast-out'); setTimeout(()=>el.remove(), 400); }, 4200);
+}
+
 function filterDataTable(){
-  const q = document.getElementById('dataSearch').value.toLowerCase();
+  const q = (document.getElementById('dataSearch')?.value || '').toLowerCase();
   document.querySelectorAll('#dataTableBody tr').forEach(tr=>{
     tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
   });
+}
+
+/* ---------- Recorrido guiado ---------- */
+const tourSteps = [
+  { view:'general', title:'Panel general', text:'Acá ves de un vistazo tus emisiones totales por Alcance 1, 2 y 3, la evolución mensual y qué te sugiere la IA. Es el primer lugar que revisa cualquier usuario al entrar.' },
+  { view:'data',    title:'Datos de actividad', text:'Acá cargás cada consumo: combustible, electricidad, venteo. Si tenés vehículos, elegí marca/modelo/combustible y el sistema calcula el factor de emisión solo — vos solo cargás los litros. La plataforma te marca en ámbar qué es obligatorio cargar según tu rubro, y qué es solo sugerido.' },
+  { view:'map',     title:'Mapa de calor', text:'Tus instalaciones geolocalizadas, con intensidad de color según cuánto emite cada una — te sirve para priorizar dónde reducir primero.' },
+  { view:'evidence',title:'Evidencias', text:'Cada dato que cargás en "Datos de actividad" debería tener una factura o comprobante acá — es lo que un auditor va a pedir para validar tus números.' },
+  { view:'offset',  title:'Compensación', text:'Si tu empresa compra créditos de carbono para compensar, se registra acá: a quién se los compraste, cuántos, a qué precio, y tu contrato. Esto calcula tu avance real hacia Net Zero.' },
+  { view:'audit',   title:'Auditoría', text:'Pedís una auditoría con el botón "Necesito auditoría" — el sistema ya sabe cuánta anticipación necesitás según tu historial. Los hallazgos de tu auditor aparecen acá hasta que los resolvés.' },
+  { view:'reports', title:'Reportes', text:'Todo lo que necesitás descargar para mostrarle a un banco, cliente o ente regulador — en PDF o Excel según corresponda.' },
+];
+let tourIndex = 0;
+function startTour(){
+  tourIndex = 0;
+  showTourStep();
+}
+function showTourStep(){
+  const step = tourSteps[tourIndex];
+  const navEl = document.querySelector(`[data-view="${step.view}"]`);
+  if(navEl) showView(step.view, navEl);
+  document.getElementById('confirmMsg').innerHTML = `<div style="font-size:11px; color:var(--muted); margin-bottom:6px;">Paso ${tourIndex+1} de ${tourSteps.length}</div><div style="font-size:14px; font-weight:600; margin-bottom:8px;">${step.title}</div>${step.text}`;
+  const yesBtn = document.querySelector('#confirmOverlay .confirm-yes');
+  yesBtn.textContent = tourIndex === tourSteps.length-1 ? 'Terminar' : 'Siguiente';
+  yesBtn.onclick = nextTourStep;
+  document.getElementById('confirmOverlay').style.display = 'flex';
+}
+function nextTourStep(){
+  tourIndex++;
+  if(tourIndex >= tourSteps.length){ closeConfirm(); resetConfirmYes(); return; }
+  showTourStep();
+}
+function resetConfirmYes(){
+  const yesBtn = document.querySelector('#confirmOverlay .confirm-yes');
+  yesBtn.textContent = 'Continuar';
+  yesBtn.onclick = confirmStep2;
 }
 
 function downloadCompaniesPDF(){
@@ -1617,6 +1839,8 @@ function closeConfirm(){
   document.getElementById('confirmOverlay').style.display = 'none';
   document.getElementById('reconfirmOverlay').style.display = 'none';
   pendingAction = null;
+  const yesBtn = document.querySelector('#confirmOverlay .confirm-yes');
+  if(yesBtn){ yesBtn.textContent = 'Continuar'; yesBtn.onclick = confirmStep2; }
 }
 
 /* ---------- Compensación / créditos de carbono ---------- */
