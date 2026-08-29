@@ -379,6 +379,7 @@
       <div style="height:1px; background:var(--line); margin:12px 4px;"></div>
       <div style="font-size:10px; color:var(--muted); letter-spacing:.06em; padding:0 10px 6px;">ADMINISTRACIÓN</div>
       <div class="nav-item" data-view="admin" onclick="showView('admin', this)" style="color:var(--amber);"><span class="nav-dot"></span> Vista general (todo el país)</div>
+      <div class="nav-item" data-view="owner" onclick="showView('owner', this)" style="color:var(--amber);"><span class="nav-dot"></span> Gestión de la plataforma</div>
       <div class="side-footer">
         YPF Satélite Neuquén S.A.<br>Plan Pyme · Período 2026
       </div>
@@ -594,6 +595,60 @@
         </table>
       </div>
     </div><!-- /view-admin -->
+
+    <!-- ===== GESTIÓN DE LA PLATAFORMA (dueño / superadmin) ===== -->
+    <div id="view-owner" style="display:none;">
+      <div class="topbar">
+        <div><h1 class="display">Gestión de la plataforma</h1><p class="lead">Alta de empresas, usuarios, contraseñas y acceso a los datos de cada cuenta</p></div>
+        <div class="pill" style="background:var(--amber-soft); color:var(--amber);">Acceso dueño de la plataforma</div>
+      </div>
+
+      <!-- Alta de nueva empresa -->
+      <div class="panel" style="margin-bottom:16px; opacity:1; animation:none;">
+        <h3 style="margin-bottom:14px;">Dar de alta una nueva empresa</h3>
+        <div class="field-row">
+          <div class="field"><label>Nombre de la empresa</label><input type="text" id="newCoName" placeholder="Ej. Petrolera del Sur S.A."></div>
+          <div class="field"><label>Email del administrador</label><input type="text" id="newCoEmail" placeholder="admin@empresa.com"></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Sector</label>
+            <select id="newCoSector"><option value="hidrocarburos">Hidrocarburos</option><option value="mineria">Minería</option><option value="comercio">Comercio / otros</option></select>
+          </div>
+          <div class="field"><label>Provincia</label>
+            <select id="newCoProv"><option>Neuquén</option><option>Buenos Aires</option><option>Chubut</option><option>Salta</option><option>San Juan</option><option>Mendoza</option></select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Plan</label>
+            <select id="newCoPlan"><option>Plan Básico</option><option>Plan Pyme</option><option>Plan Auditoría continua</option></select>
+          </div>
+          <div class="field"><label>Contraseña temporal generada</label><input type="text" id="newCoPass" readonly value="Neuquen-8X2q"></div>
+        </div>
+        <button class="btn" style="width:auto; padding:11px 20px;" onclick="createCompany()">+ Crear empresa</button>
+        <div id="createCoMsg" style="display:none; margin-top:12px; font-size:12.5px; color:var(--teal);"></div>
+      </div>
+
+      <!-- Usuarios y contraseñas -->
+      <div class="panel table-panel" style="margin-bottom:16px; opacity:1; animation:none;">
+        <h3>Usuarios de la plataforma</h3>
+        <div class="sub">Un usuario administrador por empresa — reseteo de contraseña disponible</div>
+        <table>
+          <thead><tr><th>Usuario</th><th>Empresa</th><th>Rol</th><th>Contraseña</th><th></th></tr></thead>
+          <tbody id="usersTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Auditar / ver datos de una empresa puntual -->
+      <div class="panel" style="opacity:1; animation:none;">
+        <h3 style="margin-bottom:4px;">Auditar o ver datos de una empresa</h3>
+        <div class="sub" style="margin-bottom:14px;">Acceso completo de solo lectura a la cuenta seleccionada</div>
+        <div class="field-row" style="align-items:end;">
+          <div class="field"><label>Empresa</label><select id="ownerCoSelect" onchange="renderOwnerDrilldown()"></select></div>
+          <div class="field"><button class="btn" style="width:100%;" onclick="renderOwnerDrilldown()">Ver datos completos</button></div>
+        </div>
+        <div id="ownerDrilldown"></div>
+      </div>
+    </div><!-- /view-owner -->
 
     <!-- ===== DATOS DE ACTIVIDAD ===== -->
     <div id="view-data" style="display:none;">
@@ -988,7 +1043,7 @@ document.getElementById('pass').addEventListener('keydown', e=>{ if(e.key==='Ent
 function showView(name, el){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   el.classList.add('active');
-  ['general','map','admin','data','evidence','audit','reports','config'].forEach(v=>{
+  ['general','map','admin','owner','data','evidence','audit','reports','config'].forEach(v=>{
     const node = document.getElementById('view-'+v);
     node.style.display = (v===name) ? 'block' : 'none';
     if(v===name){
@@ -1000,6 +1055,7 @@ function showView(name, el){
   if(name === 'map'){ setTimeout(initMap, 30); }
   if(name === 'admin'){ setTimeout(initAdminMap, 30); }
   if(name === 'config'){ updateProvinces(); }
+  if(name === 'owner'){ initOwnerView(); }
   if(name === 'general'){ setTimeout(()=>{ fillCoverageBar(); if(window.Chart){ Object.values(Chart.instances||{}).forEach(c=>c.resize()); } }, 120); }
 }
 
@@ -1142,6 +1198,88 @@ const companies = [
   { name:'Almacén La Esquina',          sector:'comercio',      prov:'Buenos Aires',   lat:-34.60, lng:-58.38, tco2e:18,   status:'Activo' },
   { name:'Supermercados del Sur',       sector:'comercio',      prov:'Buenos Aires',   lat:-34.65, lng:-58.50, tco2e:95,   status:'Suspendido' },
 ];
+
+/* ---------- Gestión de la plataforma (dueño / superadmin) ---------- */
+const platformUsers = [
+  { user:'admin@ypfsatelite.com.ar',   company:'YPF Satélite Neuquén S.A.',    role:'Admin empresa', pass:'Ns4-Qw81', visible:false },
+  { user:'contacto@vmservicios.com.ar',company:'Vaca Muerta Servicios S.A.',   role:'Admin empresa', pass:'Vm2-Trk77', visible:false },
+  { user:'hse@panamerican.com.ar',     company:'Pan American del Sur',        role:'Admin empresa', pass:'Pa9-Zx402', visible:false },
+  { user:'litio@ypfsalta.com.ar',      company:'YPF Salta Litio',              role:'Admin empresa', pass:'Sl5-Bq911', visible:false },
+  { user:'ambiental@mineraandina.com', company:'Minera Andina S.A.',           role:'Admin empresa', pass:'Ma3-Ry205', visible:false },
+  { user:'gerencia@litiocatamarca.com',company:'Litio Catamarca S.A.',         role:'Admin empresa', pass:'Lc7-Wn638', visible:false },
+  { user:'coop@minerario.com.ar',      company:'Cooperativa Minera Río Negro', role:'Admin empresa', pass:'Cm1-Ft850', visible:false },
+  { user:'admin@distlitoral.com.ar',   company:'Distribuidora del Litoral',    role:'Admin empresa', pass:'Dl6-Hj317', visible:false },
+  { user:'dueño@almacenlaesquina.com', company:'Almacén La Esquina',           role:'Admin empresa', pass:'Al4-Kp092', visible:false },
+  { user:'admin@supersur.com.ar',      company:'Supermercados del Sur',        role:'Admin empresa', pass:'Ss8-Jm466', visible:false },
+];
+
+function initOwnerView(){
+  renderUsersTable();
+  const sel = document.getElementById('ownerCoSelect');
+  sel.innerHTML = companies.map(c => `<option>${c.name}</option>`).join('');
+  renderOwnerDrilldown();
+}
+
+function renderUsersTable(){
+  const tbody = document.getElementById('usersTableBody');
+  tbody.innerHTML = platformUsers.map((u,i) => `
+    <tr>
+      <td>${u.user}</td>
+      <td>${u.company}</td>
+      <td>${u.role}</td>
+      <td class="mono">${u.visible ? u.pass : '••••••••'}</td>
+      <td style="white-space:nowrap;">
+        <span class="btn-sm" style="margin-right:6px;" onclick="toggleUserPass(${i})">${u.visible ? 'Ocultar' : 'Ver'}</span>
+        <span class="btn-sm xlsx" onclick="resetUserPass(${i})">Resetear</span>
+      </td>
+    </tr>`).join('');
+}
+function toggleUserPass(i){ platformUsers[i].visible = !platformUsers[i].visible; renderUsersTable(); }
+function resetUserPass(i){
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let np = '';
+  for(let k=0;k<8;k++) np += chars[Math.floor(Math.random()*chars.length)];
+  platformUsers[i].pass = np; platformUsers[i].visible = true;
+  renderUsersTable();
+}
+
+function createCompany(){
+  const name = document.getElementById('newCoName').value.trim();
+  const email = document.getElementById('newCoEmail').value.trim();
+  if(!name || !email){ alert('Completá al menos el nombre de la empresa y el email del administrador.'); return; }
+  const sector = document.getElementById('newCoSector').value;
+  const prov = document.getElementById('newCoProv').value;
+  const pass = document.getElementById('newCoPass').value;
+
+  companies.push({ name, sector, prov, lat:-36.5+(Math.random()-0.5)*8, lng:-65.5+(Math.random()-0.5)*10, tco2e:0, status:'En revisión' });
+  platformUsers.push({ user:email, company:name, role:'Admin empresa', pass, visible:true });
+
+  document.getElementById('createCoMsg').style.display = 'block';
+  document.getElementById('createCoMsg').innerHTML = `✓ Empresa "${name}" creada. Se envió la contraseña temporal a ${email}.`;
+  document.getElementById('newCoName').value = ''; document.getElementById('newCoEmail').value = '';
+
+  renderUsersTable();
+  const sel = document.getElementById('ownerCoSelect');
+  sel.innerHTML = companies.map(c => `<option>${c.name}</option>`).join('');
+  if(adminMap) renderAdminMap();
+}
+
+function renderOwnerDrilldown(){
+  const sel = document.getElementById('ownerCoSelect');
+  const box = document.getElementById('ownerDrilldown');
+  if(!sel || !sel.value) return;
+  const c = companies.find(x => x.name === sel.value);
+  if(!c){ box.innerHTML = ''; return; }
+  box.innerHTML = `
+    <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--line); display:grid; grid-template-columns:repeat(4,1fr); gap:12px;">
+      <div><div style="font-size:11px; color:var(--muted);">Sector</div><div style="font-size:13.5px; font-weight:600;">${sectorLabel[c.sector] || c.sector}</div></div>
+      <div><div style="font-size:11px; color:var(--muted);">Provincia</div><div style="font-size:13.5px; font-weight:600;">${c.prov}</div></div>
+      <div><div style="font-size:11px; color:var(--muted);">Emisiones acumuladas</div><div style="font-size:13.5px; font-weight:600; color:var(--amber);">${c.tco2e.toLocaleString('es-AR')} tCO2e</div></div>
+      <div><div style="font-size:11px; color:var(--muted);">Estado</div><div class="status-chip ${c.status==='Activo' ? 'status-resolved' : 'status-open'}" style="margin-top:2px;">${c.status}</div></div>
+    </div>
+    <div style="margin-top:14px; font-size:12px; color:var(--muted);">Accediendo como dueño de la plataforma podés entrar a los Datos de actividad, Evidencias y Auditoría de esta empresa igual que su propio administrador — de solo lectura salvo que necesites intervenir por soporte.</div>
+  `;
+}
 
 function initAdminMap(){
   if(!adminMap){
