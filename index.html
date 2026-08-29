@@ -209,6 +209,23 @@
   .confirm-actions{ display:flex; gap:10px; justify-content:center; }
   .confirm-yes{ background:var(--teal); }
 
+  .notif-bell{ position:relative; cursor:pointer; font-size:17px; padding:6px 8px; border-radius:8px; transition:background .15s; }
+  .notif-bell:hover{ background:var(--surface-2); }
+  .notif-count{
+    position:absolute; top:2px; right:2px; background:var(--danger); color:#fff; font-size:9px; font-weight:700;
+    border-radius:20px; padding:1px 5px; min-width:14px; text-align:center;
+  }
+  .notif-panel{
+    position:absolute; top:38px; right:0; width:300px; max-height:340px; overflow-y:auto; z-index:45;
+    background:rgba(23,36,32,0.92); backdrop-filter:blur(18px); border:1px solid var(--line); border-radius:10px;
+    padding:14px; box-shadow:0 10px 40px rgba(0,0,0,0.4);
+  }
+  .notif-panel-title{ font-size:11.5px; font-weight:600; margin-bottom:8px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+  .notif-item{ font-size:12px; color:var(--text); line-height:1.5; padding:8px 0; border-top:1px solid var(--line); }
+  .notif-item:first-child{ border-top:none; }
+  .notif-item .notif-time{ display:block; font-size:10px; color:var(--muted); margin-top:2px; }
+  .notif-empty{ font-size:12px; color:var(--muted); padding:10px 0; text-align:center; }
+
   /* Toast de notificación (moderación de datos, avisos pasivos) */
   .toast-msg{
     position:fixed; top:20px; right:20px; z-index:60; max-width:340px;
@@ -381,8 +398,20 @@
   .search-bar input{ flex:1; background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:9px 12px; color:var(--text); font-size:12.5px; }
   .search-bar input:focus{ outline:none; border-color:var(--teal); }
 
+  .hamburger-btn{ display:none; }
   @media (max-width: 880px){
-    .sidebar{ display:none; }
+    .sidebar{
+      position:fixed; inset:0 auto 0 0; width:250px; z-index:40;
+      transform:translateX(-100%); transition:transform .25s ease;
+    }
+    .sidebar.open{ transform:translateX(0); box-shadow:0 0 40px rgba(0,0,0,0.5); }
+    .sidebar-scrim{ display:none; position:fixed; inset:0; z-index:39; background:rgba(0,0,0,0.5); }
+    .sidebar-scrim.open{ display:block; }
+    .hamburger-btn{
+      display:flex; align-items:center; justify-content:center; width:36px; height:36px;
+      border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--text);
+      cursor:pointer; margin-bottom:14px; font-size:16px;
+    }
     .kpi-row{ grid-template-columns:1fr 1fr; }
     .grid-2{ grid-template-columns:1fr; }
     .main{ padding:18px; }
@@ -460,13 +489,20 @@
         <span class="partner-badge"><span class="pb-icon">IC</span><span class="pb-name">ICVCM</span></span>
       </div>
     </div>
+
+    <div style="text-align:center; margin-top:16px; font-size:10.5px; color:var(--muted);">
+      <span style="cursor:pointer; text-decoration:underline;" onclick="showLegal('terms')">Términos y Condiciones</span>
+      &nbsp;·&nbsp;
+      <span style="cursor:pointer; text-decoration:underline;" onclick="showLegal('privacy')">Política de Privacidad</span>
+    </div>
   </div>
 </div>
 
 <!-- ================= APP ================= -->
 <div id="app">
   <div class="shell">
-    <div class="sidebar">
+    <div class="sidebar-scrim" id="sidebarScrim" onclick="toggleSidebar(false)"></div>
+    <div class="sidebar" id="appSidebar">
       <div class="side-brand">
         <div class="brand-mark" style="width:28px;height:28px;font-size:12px;">HN</div>
         <div class="brand-name" style="font-size:14.5px;">Huella Neuquén</div>
@@ -495,6 +531,17 @@
     </div>
 
     <div class="main">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div class="hamburger-btn" onclick="toggleSidebar()">☰</div>
+        <div style="flex:1;"></div>
+        <div class="notif-bell" onclick="toggleNotifPanel()">
+          🔔<span class="notif-count" id="notifCount" style="display:none;">0</span>
+          <div class="notif-panel" id="notifPanel" style="display:none;">
+            <div class="notif-panel-title">Notificaciones</div>
+            <div id="notifList"></div>
+          </div>
+        </div>
+      </div>
     <div id="view-general">
       <div class="topbar">
         <div>
@@ -1177,6 +1224,7 @@ function requestAudit(){
     note.style.cssText = 'margin-top:10px; font-size:12px; color:var(--muted);';
     note.innerHTML = `El resto ya no puede tomar esta solicitud — quedó reservada en cuanto ${auditorPool[winnerIdx].name.split(' —')[0]} la aceptó.`;
     target.appendChild(note);
+    pushNotification(`✓ ${auditorPool[winnerIdx].name.split(' —')[0]} aceptó tu solicitud de auditoría.`);
   }, 1900);
 }
 
@@ -1241,6 +1289,7 @@ function initDashboard(){
   animateCounter('kpiS2', 1240);
   animateCounter('kpiCov', 74);
   fillCoverageBar();
+  renderNotifPanel();
 
   // dos frames de animación garantizan que el navegador ya calculó el layout real antes de dibujar
   requestAnimationFrame(()=> requestAnimationFrame(loadCharts));
@@ -1488,6 +1537,7 @@ function addVehicleData(){
   if(liters <= 0 || liters > maxRazonable){
     moderationLog.unshift({ msg:`Dato rechazado: ${liters.toLocaleString('es-AR')} L declarados para ${mode==='flota' ? count+' vehículo(s)' : '1 vehículo'} está fuera de un rango razonable.`, date:new Date().toLocaleString('es-AR') });
     renderModerationLog();
+    pushNotification('⚠ Se rechazó un dato de vehículo fuera de rango razonable (validación automática).');
     showToast('⚠ Este dato no pasó la validación automática y no fue cargado. No bloqueamos tu cuenta — solo revisá el valor y volvé a intentar.', 'warn');
     return;
   }
@@ -1512,6 +1562,60 @@ function renderModerationLog(){
 }
 
 /* ---------- Toast de notificación (distinto del modal — no pide decisión) ---------- */
+/* ---------- Menú hamburguesa (mobile) ---------- */
+function toggleSidebar(force){
+  const sb = document.getElementById('appSidebar');
+  const scrim = document.getElementById('sidebarScrim');
+  const open = force !== undefined ? force : !sb.classList.contains('open');
+  sb.classList.toggle('open', open);
+  scrim.classList.toggle('open', open);
+}
+
+/* ---------- Centro de notificaciones ---------- */
+const notifications = [];
+function pushNotification(text){
+  notifications.unshift({ text, time: new Date().toLocaleString('es-AR') });
+  renderNotifPanel();
+}
+function renderNotifPanel(){
+  const countEl = document.getElementById('notifCount');
+  const listEl = document.getElementById('notifList');
+  if(!countEl) return;
+  if(notifications.length === 0){
+    countEl.style.display = 'none';
+    listEl.innerHTML = '<div class="notif-empty">No tenés notificaciones nuevas.</div>';
+    return;
+  }
+  countEl.style.display = 'block';
+  countEl.textContent = notifications.length > 9 ? '9+' : notifications.length;
+  listEl.innerHTML = notifications.map(n => `<div class="notif-item">${n.text}<span class="notif-time">${n.time}</span></div>`).join('');
+}
+function toggleNotifPanel(){
+  const p = document.getElementById('notifPanel');
+  const willOpen = p.style.display === 'none';
+  p.style.display = willOpen ? 'block' : 'none';
+  if(willOpen){ document.getElementById('notifCount').style.display = 'none'; }
+}
+document.addEventListener('click', (e)=>{
+  const bell = document.querySelector('.notif-bell');
+  if(bell && !bell.contains(e.target)){ const p = document.getElementById('notifPanel'); if(p) p.style.display = 'none'; }
+});
+
+/* ---------- Páginas legales ---------- */
+function showLegal(kind){
+  const titles = { terms:'Términos y Condiciones', privacy:'Política de Privacidad' };
+  const texts = {
+    terms: 'Este es un prototipo de demostración. El texto legal definitivo de Términos y Condiciones de uso de la plataforma se redacta antes del lanzamiento real, cubriendo: alcance del servicio, responsabilidades de la empresa usuaria sobre la veracidad de los datos cargados, condiciones de suscripción y cancelación, y limitación de responsabilidad sobre los cálculos (que dependen de los datos que la empresa carga).',
+    privacy: 'Este es un prototipo de demostración. La Política de Privacidad definitiva se redacta conforme a la Ley 25.326 de Protección de Datos Personales (Argentina), detallando qué datos personales se recolectan (usuarios, contactos de empresa), con qué fin, cómo se resguardan, y los derechos de acceso/rectificación/supresión del titular de los datos.'
+  };
+  document.getElementById('confirmMsg').innerHTML = `<div style="font-size:14px; font-weight:600; margin-bottom:8px; text-align:left;">${titles[kind]}</div><div style="text-align:left; font-size:12.5px; color:var(--muted); line-height:1.6;">${texts[kind]}</div>`;
+  const yesBtn = document.querySelector('#confirmOverlay .confirm-yes');
+  yesBtn.textContent = 'Cerrar';
+  yesBtn.onclick = ()=>{ closeConfirm(); };
+  document.querySelector('#confirmOverlay .btn-sm').style.display = 'none';
+  document.getElementById('confirmOverlay').style.display = 'flex';
+}
+
 function showToast(message, type){
   const el = document.createElement('div');
   el.className = 'toast-msg';
@@ -1530,13 +1634,16 @@ function filterDataTable(){
 
 /* ---------- Recorrido guiado ---------- */
 const tourSteps = [
-  { view:'general', title:'Panel general', text:'Acá ves de un vistazo tus emisiones totales por Alcance 1, 2 y 3, la evolución mensual y qué te sugiere la IA. Es el primer lugar que revisa cualquier usuario al entrar.' },
-  { view:'data',    title:'Datos de actividad', text:'Acá cargás cada consumo: combustible, electricidad, venteo. Si tenés vehículos, elegí marca/modelo/combustible y el sistema calcula el factor de emisión solo — vos solo cargás los litros. La plataforma te marca en ámbar qué es obligatorio cargar según tu rubro, y qué es solo sugerido.' },
+  { view:'general', title:'Panel general', text:'Acá ves de un vistazo tus emisiones totales por Alcance 1, 2 y 3, la evolución mensual, la composición por gas (CO₂, CH₄, N₂O y demás — no todos pesan igual) y qué te sugiere la IA. Es el primer lugar que revisa cualquier usuario al entrar.' },
+  { view:'data',    title:'Datos de actividad', text:'Acá cargás cada consumo: combustible, electricidad, venteo. Si tenés vehículos, elegí marca/modelo/combustible y el sistema calcula el factor de emisión solo — vos solo cargás los litros. La plataforma te marca en ámbar qué es obligatorio cargar según tu rubro, y qué es solo sugerido. Si cargás un dato fuera de rango, el sistema lo rechaza y te avisa — pero nunca te bloquea la cuenta.' },
   { view:'map',     title:'Mapa de calor', text:'Tus instalaciones geolocalizadas, con intensidad de color según cuánto emite cada una — te sirve para priorizar dónde reducir primero.' },
   { view:'evidence',title:'Evidencias', text:'Cada dato que cargás en "Datos de actividad" debería tener una factura o comprobante acá — es lo que un auditor va a pedir para validar tus números.' },
   { view:'offset',  title:'Compensación', text:'Si tu empresa compra créditos de carbono para compensar, se registra acá: a quién se los compraste, cuántos, a qué precio, y tu contrato. Esto calcula tu avance real hacia Net Zero.' },
   { view:'audit',   title:'Auditoría', text:'Pedís una auditoría con el botón "Necesito auditoría" — el sistema ya sabe cuánta anticipación necesitás según tu historial. Los hallazgos de tu auditor aparecen acá hasta que los resolvés.' },
   { view:'reports', title:'Reportes', text:'Todo lo que necesitás descargar para mostrarle a un banco, cliente o ente regulador — en PDF o Excel según corresponda.' },
+  { view:'config',  title:'Configuración', text:'Los datos formales de tu empresa: razón social, CUIT, domicilio fiscal, ubicación (país y provincia) y rubro. El rubro es lo que define qué categorías te aparecen por defecto en "Datos de actividad".' },
+  { view:'admin',   title:'Vista general (todo el país)', text:'Esta sección y la siguiente son solo visibles para la consultora/dueño de la plataforma, no para una empresa común. Acá se ve el mapa y las estadísticas de todas las empresas registradas, con filtro por sector.' },
+  { view:'owner',   title:'Gestión de la plataforma', text:'Desde acá el dueño de la plataforma da de alta nuevas empresas, gestiona usuarios y contraseñas, y puede entrar a auditar o revisar los datos de cualquier cuenta puntual.' },
 ];
 let tourIndex = 0;
 function startTour(){
@@ -1841,6 +1948,8 @@ function closeConfirm(){
   pendingAction = null;
   const yesBtn = document.querySelector('#confirmOverlay .confirm-yes');
   if(yesBtn){ yesBtn.textContent = 'Continuar'; yesBtn.onclick = confirmStep2; }
+  const cancelBtn = document.querySelector('#confirmOverlay .btn-sm');
+  if(cancelBtn){ cancelBtn.style.display = ''; }
 }
 
 /* ---------- Compensación / créditos de carbono ---------- */
